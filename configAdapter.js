@@ -10,10 +10,14 @@ const { AURORA_CONFIG } = require("./config/aurora-config");
 const { MOONRIVER_CONFIG } = require("./config/moonriver-config");
 const { BOBA_CONFIG } = require("./config/boba-config");
 const { AVAX_CONFIG } = require("./config/avax-config"); 
+const { FTM_TEST_CONFIG } = require("./config/ftm-test-config"); 
 
 exports.GetConfig = function (network, accounts) {
     var CONFIG = {}
     switch (network) {
+        case "ftm_test":
+            CONFIG = FTM_TEST_CONFIG
+            break;
         case "live":
             CONFIG = ETH_CONFIG
             break;
