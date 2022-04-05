@@ -4,3 +4,6 @@ typechain/
 abi/
 *artifacts
 .deps
+package-lock.json
+typechain-types/*
+cache/*
