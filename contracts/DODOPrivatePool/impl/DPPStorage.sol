@@ -48,7 +48,7 @@ contract DPPStorage is InitializableOwnable, ReentrancyGuard {
 
     // ============ Helper Functions ============
 
-    function getPMMState() public view returns (PMMPricing.PMMState memory state) {
+    function getPMMState() public virtual view returns (PMMPricing.PMMState memory state) {
         state.i = _I_;
         state.K = _K_;
         state.B = _BASE_RESERVE_;
