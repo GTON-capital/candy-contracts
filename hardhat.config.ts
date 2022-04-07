@@ -22,12 +22,27 @@ export default {
       url: "https://rpc.goerli.mudit.blog/",
       accounts: process.env.TESTNET_PK ? [process.env.TESTNET_PK] : undefined,
     },
-    ftmtestnet: {
+    ftmTestnet: {
       // gas: 5000000,
       // url: "https://rpc.ankr.com/fantom",
       url: "https://rpc.testnet.fantom.network",
       accounts: process.env.TESTNET_PK ? [process.env.TESTNET_PK] : undefined,
     },
+  },
+  etherscan: {
+    apiKey: {
+      mainnet: process.env.ETHERSCAN,
+      ropsten: process.env.ETHERSCAN,
+      rinkeby: process.env.ETHERSCAN,
+      goerli: process.env.ETHERSCAN,
+      kovan: process.env.ETHERSCAN,
+      // ftm
+      opera: process.env.FTMSCAN,
+      ftmTestnet: "X28J3FB21T8HZJVBYMU2FD7FH6HU74TQ83",
+      // polygon
+      polygon: process.env.POLYGONSCAN,
+      polygonMumbai: process.env.POLYGONSCAN,
+    }
   },
   solidity: {
     compilers: [
@@ -103,10 +118,5 @@ export default {
   },
   mocha: {
     timeout: "100000000000000",
-  },
-  etherscan: {
-    apiKey: {
-      opera: "PYTF1XH3ND5KGGQCKREIQEZQ8X2M8R12SP",
-    },
   },
 };

@@ -23,8 +23,8 @@ deploy-detail-erc20V3.txt
 *.swo
 *.swp
 
-
 node_modules
+package-lock.json
 
 #Hardhat files
 cache
