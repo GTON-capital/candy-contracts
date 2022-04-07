@@ -1,6 +1,34 @@
 //SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+interface DODOPoolProxy {
+
+    function addLiquidity(
+        address poolAddress,
+        uint amountTokenBase,
+        uint amountTokenQuote
+    ) external returns (uint lpAmount);
+    
+    function calculateBaseProportionForSuppliedQuote(
+        address poolAddress,
+        uint quoteAmount
+    ) external view returns (uint baseAmount);
+
+    function calculateLPForReleasingSuppliedQuoteAmount(
+        address poolAddress,
+        uint quoteAmount
+    ) external view returns (uint baseAmount);
+
+    function removeLiquidity(
+        address poolAddress,
+        uint lpAmount
+    ) external returns (uint baseAmount, uint quoteAmount);
+
+    function getQuotePrice(
+        address poolAddress
+    ) external view returns (uint price, uint decimals);
+
+}
 
 interface IPoolProxy {
     function factory() external pure returns (address);

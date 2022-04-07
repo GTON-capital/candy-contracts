@@ -2,3 +2,8 @@ node_modules/
 build/
 typechain/
 abi/
+*artifacts
+.deps
+typechain-types/*
+cache/*
+*types
