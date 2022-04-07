@@ -6,3 +6,4 @@ abi/
 .deps
 typechain-types/*
 cache/*
+*types
