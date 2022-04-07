@@ -22,7 +22,11 @@ interface DODOPoolProxy {
     function removeLiquidity(
         address poolAddress,
         uint lpAmount
-    ) external view returns (uint baseAmount, uint quoteAmount);
+    ) external returns (uint baseAmount, uint quoteAmount);
+
+    function getQuotePrice(
+        address poolAddress
+    ) external view returns (uint price, uint decimals);
 
 }
 
