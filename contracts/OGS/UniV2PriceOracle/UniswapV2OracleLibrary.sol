@@ -1,4 +1,7 @@
-pragma solidity =0.6.6;
+// SPDX-License-Identifier: GPL-3.0-or-later
+// https://github.com/Uniswap/v2-periphery/blob/master/contracts/libraries/UniswapV2OracleLibrary.sol
+
+pragma solidity >=0.6.6;
 
 import "./IUniswapV2Pair.sol";
 import "./FixedPoint.sol";

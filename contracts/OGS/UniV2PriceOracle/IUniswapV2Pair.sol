@@ -1,4 +1,7 @@
-pragma solidity =0.6.6;
+// SPDX-License-Identifier: GPL-3.0-or-later
+// https://github.com/Uniswap/v2-core/blob/master/contracts/interfaces/IUniswapV2Pair.sol
+
+pragma solidity >=0.6.6;
 
 interface IUniswapV2Pair {
     event Approval(address indexed owner, address indexed spender, uint value);

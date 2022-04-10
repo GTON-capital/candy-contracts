@@ -41,7 +41,7 @@ contract OGSPPool is DPP {
         uint256 decimals = priceFeed.decimals();
         require(
             decimals >= 0 && price > 0,
-            "DON Error: price data and decimals must be higher than 0"
+            "Price Error: price data and decimals must be higher than 0"
         );
         uint256 n = 10**18;
         uint256 d = 10**decimals;

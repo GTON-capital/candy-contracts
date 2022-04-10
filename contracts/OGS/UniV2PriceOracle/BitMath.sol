@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity =0.6.6;
+// https://github.com/Uniswap/solidity-lib/tree/master/contracts/libraries
+
+pragma solidity >=0.6.6;
+
 
 library BitMath {
     // returns the 0 indexed position of the most significant bit of the input x
@@ -38,6 +41,7 @@ library BitMath {
         if (x >= 0x2) r += 1;
     }
 
+    /* Unneeded in current setup, removed
     // returns the 0 indexed position of the least significant bit of the input x
     // s.t. (x & 2**lsb) != 0 and (x & (2**(lsb) - 1)) == 0)
     // i.e. the bit at the index is set and the mask of all lower bits is 0
@@ -82,4 +86,5 @@ library BitMath {
         }
         if (x & 0x1 > 0) r -= 1;
     }
+    */
 }
