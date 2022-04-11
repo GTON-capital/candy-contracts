@@ -125,7 +125,7 @@ contract SlidingWindowOracle {
 
     // From UniswapV2Library
     // calculates the CREATE2 address for a pair without making any external calls
-    function pairFor(address tokenA, address tokenB) private view returns (address pair) {
+    function pairFor(address tokenA, address tokenB) public view returns (address pair) {
         (address token0, address token1) = sortTokens(tokenA, tokenB);
         pair = address(uint(keccak256(abi.encodePacked(
                 hex"ff",
