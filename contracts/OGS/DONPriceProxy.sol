@@ -5,7 +5,6 @@ pragma experimental ABIEncoderV2;
 
 import { IEACAggregatorProxy } from "./intf/IEACAggregatorProxy.sol";
 import { IOGSPriceProxy } from "./intf/IOGSPriceProxy.sol";
-// import { SlidingWindowOracle } from "./UniV2PriceOracle/SlidingWindowOracle.sol";
 
 contract DONPriceProxy is IOGSPriceProxy {
 

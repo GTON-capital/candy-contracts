@@ -13,10 +13,10 @@ contract UniV2PriceProxy is IOGSPriceProxy {
     address public tokenA;
     address public tokenB;
 
-    constructor(SlidingWindowOracle oracle_, address tokenA_, address tokenB_) public {
-        oracle = oracle_;
-        tokenA = tokenA_;
-        tokenB = tokenB_;
+    constructor(SlidingWindowOracle _oracle, address _tokenA, address _tokenB) public {
+        oracle = _oracle;
+        tokenA = _tokenA;
+        tokenB = _tokenB;
         pair = oracle.pairFor(tokenA, tokenB);
     }
 
