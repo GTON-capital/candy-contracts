@@ -11,7 +11,7 @@ import { DODODppProxy__factory } from "./../typechain-types/factories/DODODppPro
 import { DODODppProxy } from "./../typechain-types/DODODppProxy";
 import { DODOV2Proxy02__factory } from "./../typechain-types/factories/DODOV2Proxy02__factory";
 import { DPPFactory__factory } from "./../typechain-types/factories/DPPFactory__factory";
-import { OGSDPP__factory } from "./../typechain-types/factories/OGSDPP__factory";
+import { OGSDPPSwapper__factory } from "./../typechain-types/factories/OGSDPPSwapper__factory";
 import { ERC20PresetFixedSupply__factory } from "./../typechain-types/factories/ERC20PresetFixedSupply__factory";
 import { OGSPPool__factory } from "./../typechain-types/factories/OGSPPool__factory";
 import { FeeRateModel__factory } from "./../typechain-types/factories/FeeRateModel__factory";
@@ -48,9 +48,9 @@ async function start() {
   )) as WrappedNative__factory;
 
   const _dppFactory = (await ethers.getContractFactory("DPP")) as DPP__factory;
-  const ogsDppFactory = (await ethers.getContractFactory(
-    "OGSDPP"
-  )) as OGSDPP__factory;
+  const ogsDppSwapperFactory = (await ethers.getContractFactory(
+    "OGSDPPSwapper"
+  )) as OGSDPPSwapper__factory;
   const factoryOfCloneFactory = (await ethers.getContractFactory(
     "CloneFactory"
   )) as CloneFactory__factory;
@@ -77,7 +77,7 @@ async function start() {
   const dodoDppProxy = resp_dodo_v2.dodoDppProxy as DODODppProxy;
   const dppFactory = resp_dodo_v2.dppFactory as DPPFactory;
 
-  const OGSDPP = await ogsDppFactory.deploy();
+  const OGSDPPSwapper = await ogsDppSwapperFactory.deploy();
 
   const K = 0.5;
   const I = 2;
@@ -119,7 +119,7 @@ async function start() {
 
   console.log({
     resp: mapValues(resp_dodo_v2, (x) => x.address),
-    OGSDPP: OGSDPP.address,
+    OGSDPPSwapper: OGSDPPSwapper.address,
     poolAddr,
     poolAddrList,
     gtonToken: gtonToken.address,

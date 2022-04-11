@@ -1,4 +1,4 @@
-import { OGSDPP__factory } from "./../typechain-types/factories/OGSDPP__factory";
+import { OGSDPPSwapper__factory } from "./../typechain-types/factories/OGSDPPSwapper__factory";
 import { DODOV2Proxy02 } from "./../typechain-types/DODOV2Proxy02";
 import { DPPFactory__factory } from "./../typechain-types/factories/DPPFactory__factory";
 import { DODODppProxy__factory } from "./../typechain-types/factories/DODODppProxy__factory";
@@ -219,9 +219,9 @@ describe("DPP test coverage", () => {
       const _dppFactory = (await ethers.getContractFactory(
         "DPP"
       )) as DPP__factory;
-      const ogsDppFactory = (await ethers.getContractFactory(
-        "OGSDPP"
-      )) as OGSDPP__factory;
+      const ogsDppSwapperFactory = (await ethers.getContractFactory(
+        "OGSDPPSwapper"
+      )) as OGSDPPSwapper__factory;
       const factoryOfCloneFactory = (await ethers.getContractFactory(
         "CloneFactory"
       )) as CloneFactory__factory;
@@ -254,7 +254,7 @@ describe("DPP test coverage", () => {
       const dppFactory = resp_dodo_v2.dppFactory as DPPFactory;
       const dodoV2Proxy02 = resp_dodo_v2.dodoV2Proxy02 as DODOV2Proxy02;
 
-      const OGSDPP = await ogsDppFactory.deploy();
+      const OGSDPPSwapper = await ogsDppSwapperFactory.deploy();
 
       const K = 0.5;
       const I = 2;
@@ -321,10 +321,10 @@ describe("DPP test coverage", () => {
 
         /** INTERFACE OF OGS DPP */
         await gtonToken.approve(
-          OGSDPP.address,
+          OGSDPPSwapper.address,
           new Big(swapAmount).mul(1e18).toFixed()
         );
-        await OGSDPP.swapPrivatePool(
+        await OGSDPPSwapper.swapPrivatePool(
           poolAddr,
           gtonToken.address,
           usdcToken.address,
