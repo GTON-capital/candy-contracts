@@ -4,6 +4,10 @@ import "@nomiclabs/hardhat-waffle";
 import "hardhat-abi-exporter";
 import "@nomiclabs/hardhat-etherscan";
 
+import { resolve } from "path";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: resolve(__dirname, "./.env") });
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
