@@ -38,7 +38,7 @@ export default {
       kovan: process.env.ETHERSCAN,
       // ftm
       opera: process.env.FTMSCAN,
-      ftmTestnet: "X28J3FB21T8HZJVBYMU2FD7FH6HU74TQ83",
+      ftmTestnet: process.env.FTMSCAN,
       // polygon
       polygon: process.env.POLYGONSCAN,
       polygonMumbai: process.env.POLYGONSCAN,

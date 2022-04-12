@@ -6,7 +6,7 @@ import { ethers } from "hardhat";
 import { mapValues } from "lodash";
 import { Wallet } from "ethers";
 
-import { EACAggregatorProxyMock__factory } from "./../typechain-types/factories/EACAggregatorProxyMock__factory";
+import { AggregatorProxyMock__factory } from "./../typechain-types/factories/AggregatorProxyMock__factory";
 import { DODODppProxy__factory } from "./../typechain-types/factories/DODODppProxy__factory";
 import { DODODppProxy } from "./../typechain-types/DODODppProxy";
 import { DODOV2Proxy02__factory } from "./../typechain-types/factories/DODOV2Proxy02__factory";

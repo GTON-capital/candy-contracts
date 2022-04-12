@@ -4,9 +4,9 @@ import { OGSPPool__factory } from "./../typechain-types/factories/OGSPPool__fact
 
 import { OGSDPPSwapper } from "./../typechain-types/OGSDPPSwapper";
 import { OGSPPool } from "./../typechain-types/OGSPPool";
-import { EACAggregatorProxyMock } from "./../typechain-types/EACAggregatorProxyMock";
+import { AggregatorProxyMock } from "./../typechain-types/AggregatorProxyMock";
 
-import { EACAggregatorProxyMock__factory } from "./../typechain-types/factories/EACAggregatorProxyMock__factory";
+import { AggregatorProxyMock__factory } from "./../typechain-types/factories/AggregatorProxyMock__factory";
 import inquirer from "inquirer";
 import { ethers } from "hardhat";
 import Big from "big.js";
@@ -20,7 +20,7 @@ type MatchResult<T> = { value?: T; matched: boolean };
 type OGSContext = {
   base: FreeToken;
   quote: FreeToken;
-  eacProxyMock?: EACAggregatorProxyMock;
+  eacProxyMock?: AggregatorProxyMock;
   ogsDPPSwapper: OGSDPPSwapper;
   ogsPPool: OGSPPool;
 };
@@ -132,8 +132,8 @@ async function start() {
       "OGSPPool"
     )) as OGSPPool__factory,
     eacProxyMock: (await ethers.getContractFactory(
-      "EACAggregatorProxyMock"
-    )) as EACAggregatorProxyMock__factory,
+      "AggregatorProxyMock"
+    )) as AggregatorProxyMock__factory,
     erc20: (await ethers.getContractFactory("FreeToken")) as FreeToken__factory,
   };
 
