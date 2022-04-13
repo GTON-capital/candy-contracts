@@ -1,5 +1,9 @@
-import { FreeToken__factory } from "./../typechain-types/factories/FreeToken__factory";
 import { FreeToken } from "./../typechain-types/FreeToken";
+import { FreeToken__factory } from "./../typechain-types/factories/FreeToken__factory";
+
+import { ERC20 } from "./../typechain-types/ERC20";
+import { ERC20__factory } from "./../typechain-types/factories/ERC20__factory";
+
 import { OGSPPool__factory } from "./../typechain-types/factories/OGSPPool__factory";
 
 import { OGSDPPSwapper } from "./../typechain-types/OGSDPPSwapper";
@@ -18,8 +22,8 @@ type InquirerQuestion = { type: string; name: string; message: string };
 type MatchResult<T> = { value?: T; matched: boolean };
 
 type OGSContext = {
-  base: FreeToken;
-  quote: FreeToken;
+  base: ERC20;
+  quote: ERC20;
   eacProxyMock?: AggregatorProxyMock;
   ogsDPPSwapper: OGSDPPSwapper;
   ogsPPool: OGSPPool;
@@ -43,7 +47,7 @@ class QuestionsHandler {
   welcome(): InquirerQuestion {
     const commands = [
       "swapViaOGS: swapViaOGS (gton|usdc) (gton|usdc) 100",
-      "faucet: faucet (gton|usdc) 100",
+      // "faucet: faucet (gton|usdc) 100",
     ].join("\n");
 
     return {
@@ -78,12 +82,13 @@ class QuestionsHandler {
       gton: this.deployResult.gtonToken.toString(),
       usdc: this.deployResult.usdcToken.toString(),
     };
-    const tokensToERC20: Record<string, FreeToken> = {
+    const tokensToERC20: Record<string, ERC20> = {
       gton: this.ogs_context.base.attach(tokens.gton),
       usdc: this.ogs_context.base.attach(tokens.usdc),
     };
 
     switch (spl[0]) {
+      /*
       case "faucet":
         const faucetAmount = spl[2];
         // console.log({ spl, faucetAmount });
@@ -99,6 +104,7 @@ class QuestionsHandler {
           ).hash.toString()}`
         );
         return { matched: true };
+      */
       case "swapViaOGS":
         const swapAmount = spl[3];
 
@@ -134,7 +140,7 @@ async function start() {
     eacProxyMock: (await ethers.getContractFactory(
       "AggregatorProxyMock"
     )) as AggregatorProxyMock__factory,
-    erc20: (await ethers.getContractFactory("FreeToken")) as FreeToken__factory,
+    erc20: (await ethers.getContractFactory("ERC20")) as ERC20__factory,
   };
 
   const deployResult = {
@@ -178,11 +184,11 @@ async function start() {
       dodoMineV3Proxy: "0xBd1579Bf8697479AE42F1918f198D7A3C521F371",
       dodoRouteProxy: "0xDF05E6c6885952a08c5497BC3C32E1EE25Db382C",
     },
-    OGSDPPSwapper: "0x1a0Dcb6814af30D6743841a6F425792e644E16bF",
-    poolAddr: "0xe1276DC6bc744f063d6f05Dc4C8ec1bD7C61b2cB",
-    poolAddrList: ["0xe1276DC6bc744f063d6f05Dc4C8ec1bD7C61b2cB"],
-    gtonToken: "0xD04B30F9b223547035C9BC5F1dD700995cA0aBa3",
-    usdcToken: "0x7312a3112e4048F33d69A5C6BbA20CD5E688Edd7",
+    OGSDPPSwapper: "0xcdA454333f7D5c03527408C5aC0f376C4546443a",
+    poolAddr: "0x7EA5dF9E03A567b1c511035E76394e5e76067A61",
+    poolAddrList: ["0x7EA5dF9E03A567b1c511035E76394e5e76067A61"],
+    gtonToken: "0xc4d0a76ba5909c8e764b67acf7360f843fbacb2d",
+    usdcToken: "0xA2DCeFfc29003101b4bca24134dd1437106A7f81",
   };
 
   const builtContracts = {
@@ -204,6 +210,13 @@ async function start() {
   };
 
   await process_input();
+}
+
+async function getETHContract() {
+  let Bonding = await ethers.getContractFactory("BondingETH");
+  return Bonding.attach(
+    "0xc7b266aafcea5c1d8e6d90339a73cca34e476492" // Latest hourly bonding contract
+  )
 }
 
 start();

@@ -55,7 +55,7 @@ async function mn() {
 
   const [deployer] = await ethers.getSigners();
 
-  const newDeploy = true;
+  const newDeploy = false;
 
   const propsToOverride = () => {
     return { gasLimit: 1_000_000 };
@@ -74,7 +74,7 @@ async function mn() {
       "GTON",
       new Big(21_000_000).mul(1e18).toFixed(),
       deployer.address,
-      propsToOverride()
+      // propsToOverride()
     );
     gtonTokenAddress = gtonToken.address;
 
@@ -83,13 +83,15 @@ async function mn() {
       "USDC",
       new Big(1_000_000).mul(1e18).toFixed(),
       deployer.address,
-      propsToOverride()
+      // propsToOverride()
     );
     pairTokenAddress = usdcToken.address;
   } else {
-    gtonTokenAddress = "";
-    pairTokenAddress = "";
+    gtonTokenAddress = "0xc4d0a76ba5909c8e764b67acf7360f843fbacb2d";
+    pairTokenAddress = "0xA2DCeFfc29003101b4bca24134dd1437106A7f81";
   }
+  console.log("GTON address:" + gtonTokenAddress);
+  console.log("Pair token address:" + pairTokenAddress);
 
   /*
   const wethFactory = (await ethers.getContractFactory(
@@ -118,16 +120,16 @@ async function mn() {
   var orcaleAddress: string;
   var donProxyAddress: string;
 
-  if (newDeploy) {
+  // if (newDeploy) {
     const orcale = await donOracleMockFactory.deploy(10000, 4);
     orcaleAddress = orcale.address;
 
     const donProxyContractUSDC = await donProxyFactory.deploy(orcaleAddress);
     donProxyAddress = donProxyContractUSDC.address
-  } else {
-    orcaleAddress = "";
-    donProxyAddress = "";
-  }
+  // } else {
+  //   orcaleAddress = "";
+  //   donProxyAddress = "";
+  // }
   console.log("orcaleAddress address:" + orcaleAddress);
   console.log("donProxyAddress address:" + donProxyAddress);
 
@@ -135,6 +137,9 @@ async function mn() {
   const dppContract = await dppFactory.deploy(donProxyAddress);
   await dppContract.deployed();
   console.log("dppContract address:" + dppContract.address);
+
+  const dppOwnerInitTx = await dppContract.initOwner(deployer.address, propsToOverride());
+  console.log("Dpp owner init TX hash:" + dppOwnerInitTx.hash);
 
   const feeRateModelFactory = (await ethers.getContractFactory(
     "FeeRateModel"

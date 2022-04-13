@@ -27,7 +27,8 @@
     "test:dodo:ftmtestnet": "hardhat run --network ftmTestnet ./scripts/dpp-deploy.ts",
     "test:dodo:goerli": "hardhat run --network goerli ./scripts/dpp-deploy.ts",
     "testnet:cli": "hardhat run --network ftmTestnet ./scripts/ogs-cli.ts",
-    "testnet:goerli:cli": "hardhat run --network goerli ./scripts/deploy-ogs.ts"
+    "testnet:goerli:cli": "hardhat run --network goerli ./scripts/deploy-ogs.ts",
+    "singledeploy": "hardhat run --network ftmTestnet ./scripts/single-contract-deploy.ts"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",

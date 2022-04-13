@@ -31,6 +31,7 @@ export default {
       // url: "https://rpc.ankr.com/fantom",
       url: "https://rpc.testnet.fantom.network",
       accounts: process.env.TESTNET_PK ? [process.env.TESTNET_PK] : undefined,
+      // gasPrice: 35000000000,
     },
   },
   etherscan: {
@@ -55,7 +56,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -64,7 +65,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -73,7 +74,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -82,7 +83,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -91,7 +92,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -100,7 +101,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -109,7 +110,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
