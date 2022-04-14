@@ -29,8 +29,14 @@ import { prettyPrint, prettyPrintContractDeployment } from "./utils";
 import { DPP } from "../typechain-types/DPP";
 import { DPPFactory } from "./../typechain-types/DPPFactory";
 import { decimalStr } from "../test/utils/Converter";
-import { DPP__factory } from "./../typechain-types/factories/DPP__factory";
+import { DPP__factory } from "../typechain-types/factories/DPP__factory";
+import { OGSPPool__factory } from "../typechain-types/factories/OGSPPool__factory";
 import { FeeRateModel__factory } from "./../typechain-types/factories/FeeRateModel__factory";
+
+// Oracles
+import { DONPriceProxy__factory } from "../typechain-types/factories/DONPriceProxy__factory";
+import { AggregatorProxyMock__factory } from "./../typechain-types/factories/AggregatorProxyMock__factory";
+import { OGSPPool } from "~/typechain-types";
 
 describe("DPP test coverage", () => {
   const buildDPPGetter = async (contract: DPP) => {
@@ -119,6 +125,9 @@ describe("DPP test coverage", () => {
         new Big(I).mul(1e18).toFixed(), // default (I)
         true
       );
+
+      const dppContractAsOGSPool = resp_dodo_v2.dppTemplate as OGSPPool;
+      await setPriceOrcaleInPool(dppContractAsOGSPool);
 
       const dppBalanceGetter = await buildDPPGetter(dppContract);
 
@@ -216,6 +225,9 @@ describe("DPP test coverage", () => {
         "WrappedNative"
       )) as WrappedNative__factory;
 
+      const _ogsdppFactory = (await ethers.getContractFactory(
+        "OGSPPool"
+      )) as OGSPPool__factory;
       const _dppFactory = (await ethers.getContractFactory(
         "DPP"
       )) as DPP__factory;
@@ -292,6 +304,10 @@ describe("DPP test coverage", () => {
       const dppTempl = _dppFactory.attach(poolAddr);
       const dppBalanceGetter = await buildDPPGetter(dppTempl);
 
+      // Doesn't work since Factory is the owner, need setup adjustment
+      const ogsDppTempl = _ogsdppFactory.attach(poolAddr);
+      await setPriceOrcaleInPool(ogsDppTempl);
+
       console.log({ K, I });
 
       // Swap <N> times and check liquidity
@@ -352,3 +368,14 @@ describe("DPP test coverage", () => {
     });
   });
 });
+
+async function setPriceOrcaleInPool(pool: OGSPPool) {
+  const donOracleMockFactory = (await ethers.getContractFactory("AggregatorProxyMock")) as AggregatorProxyMock__factory;
+  const donProxyFactory = (await ethers.getContractFactory("DONPriceProxy")) as DONPriceProxy__factory;
+
+  const orcale = await donOracleMockFactory.deploy(10000, 4);
+  const donProxy = await donProxyFactory.deploy(orcale.address);
+
+  const priceProxySetTx = await pool.updatePriceProxy(donProxy.address);
+  console.log("Dpp price proxy set TX hash:" + priceProxySetTx.hash);
+}

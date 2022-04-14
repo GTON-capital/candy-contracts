@@ -134,12 +134,15 @@ async function mn() {
   console.log("donProxyAddress address:" + donProxyAddress);
 
   const dppFactory = (await ethers.getContractFactory("OGSPPool")) as OGSPPool__factory;
-  const dppContract = await dppFactory.deploy(donProxyAddress);
+  const dppContract = await dppFactory.deploy();
   await dppContract.deployed();
   console.log("dppContract address:" + dppContract.address);
 
   const dppOwnerInitTx = await dppContract.initOwner(deployer.address, propsToOverride());
   console.log("Dpp owner init TX hash:" + dppOwnerInitTx.hash);
+
+  const priceProxySetTx = await dppContract.updatePriceProxy(donProxyAddress);
+  console.log("Dpp price proxy set TX hash:" + priceProxySetTx.hash); 
 
   const feeRateModelFactory = (await ethers.getContractFactory(
     "FeeRateModel"

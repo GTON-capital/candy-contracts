@@ -49,6 +49,9 @@ import { ERC20V3Factory__factory } from "../typechain-types/factories/ERC20V3Fac
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
 
+import { OGSPPool } from "../typechain-types/OGSPPool";
+import { OGSPPool__factory } from "../typechain-types/factories/OGSPPool__factory";
+
 export namespace erc20v3 {
   export type Input = {
     erc20: string;
@@ -128,7 +131,7 @@ export namespace ogs {
         "FeeRateImpl"
       )) as FeeRateImpl__factory,
       dvmTemplate: (await ethers.getContractFactory("DVM")) as DVM__factory,
-      dppTemplate: (await ethers.getContractFactory("DPP")) as DPP__factory,
+      dppTemplate: (await ethers.getContractFactory("OGSPPool")) as OGSPPool__factory,
       dppAdminTemplate: (await ethers.getContractFactory(
         "DPPAdmin"
       )) as DPPAdmin__factory,
@@ -285,7 +288,7 @@ export namespace core {
       )) as PermissionManager__factory,
       dvmTemplate: (await ethers.getContractFactory("DVM")) as DVM__factory,
       dspTemplate: (await ethers.getContractFactory("DSP")) as DSP__factory,
-      dppTemplate: (await ethers.getContractFactory("DPP")) as DPP__factory,
+      dppTemplate: (await ethers.getContractFactory("OGSPPool")) as OGSPPool__factory,
       dppAdminTemplate: (await ethers.getContractFactory(
         "DPPAdmin"
       )) as DPPAdmin__factory,

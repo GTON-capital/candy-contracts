@@ -11,10 +11,6 @@ contract OGSPPool is DPP {
 
     IOGSPriceProxy private priceProxy;
 
-    constructor(IOGSPriceProxy _priceProxy) public {
-        priceProxy = _priceProxy;
-    }
-
     function updatePriceProxy(IOGSPriceProxy _priceProxy) public onlyOwner {
         priceProxy = _priceProxy;
     }
