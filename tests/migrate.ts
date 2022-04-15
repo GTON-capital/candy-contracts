@@ -24,8 +24,7 @@ import { ERC20MineV3__factory } from "./../typechain-types/factories/ERC20MineV3
 import { ERC20Mine__factory } from "./../typechain-types/factories/ERC20Mine__factory";
 import { InitializableERC20__factory } from "./../typechain-types/factories/InitializableERC20__factory";
 import { CP__factory } from "./../typechain-types/factories/CP__factory";
-import { DPPAdmin__factory } from "./../typechain-types/factories/DPPAdmin__factory";
-import { DPP__factory } from "./../typechain-types/factories/DPP__factory";
+import { OGSPPAdmin__factory } from "./../typechain-types/factories/OGSPPAdmin__factory";
 import { DSP__factory } from "./../typechain-types/factories/DSP__factory";
 import { DVM__factory } from "./../typechain-types/factories/DVM__factory";
 import { PermissionManager__factory } from "./../typechain-types/factories/PermissionManager__factory";
@@ -133,8 +132,8 @@ export namespace ogs {
       dvmTemplate: (await ethers.getContractFactory("DVM")) as DVM__factory,
       dppTemplate: (await ethers.getContractFactory("OGSPPool")) as OGSPPool__factory,
       dppAdminTemplate: (await ethers.getContractFactory(
-        "DPPAdmin"
-      )) as DPPAdmin__factory,
+        "OGSPPAdmin"
+      )) as OGSPPAdmin__factory,
 
       dodoApprove: (await ethers.getContractFactory(
         "DODOApprove"
@@ -290,8 +289,8 @@ export namespace core {
       dspTemplate: (await ethers.getContractFactory("DSP")) as DSP__factory,
       dppTemplate: (await ethers.getContractFactory("OGSPPool")) as OGSPPool__factory,
       dppAdminTemplate: (await ethers.getContractFactory(
-        "DPPAdmin"
-      )) as DPPAdmin__factory,
+        "OGSPPAdmin"
+      )) as OGSPPAdmin__factory,
       cpTemplate: (await ethers.getContractFactory("CP")) as CP__factory,
       erc20initializable: (await ethers.getContractFactory(
         "InitializableERC20"

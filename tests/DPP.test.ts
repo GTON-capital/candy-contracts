@@ -1,4 +1,4 @@
-import { OGSDPPSwapper__factory } from "./../typechain-types/factories/OGSDPPSwapper__factory";
+import { OGSPPSwapper__factory } from "./../typechain-types/factories/OGSPPSwapper__factory";
 import { DODOV2Proxy02 } from "./../typechain-types/DODOV2Proxy02";
 import { DPPFactory__factory } from "./../typechain-types/factories/DPPFactory__factory";
 import { DODODppProxy__factory } from "./../typechain-types/factories/DODODppProxy__factory";
@@ -30,13 +30,15 @@ import { DPP } from "../typechain-types/DPP";
 import { DPPFactory } from "./../typechain-types/DPPFactory";
 import { decimalStr } from "../test/utils/Converter";
 import { DPP__factory } from "../typechain-types/factories/DPP__factory";
-import { OGSPPool__factory } from "../typechain-types/factories/OGSPPool__factory";
 import { FeeRateModel__factory } from "./../typechain-types/factories/FeeRateModel__factory";
 
-// Oracles
+// OGS
 import { DONPriceProxy__factory } from "../typechain-types/factories/DONPriceProxy__factory";
 import { AggregatorProxyMock__factory } from "./../typechain-types/factories/AggregatorProxyMock__factory";
 import { OGSPPool } from "~/typechain-types";
+import { OGSPPool__factory } from "../typechain-types/factories/OGSPPool__factory";
+import { OGSPPAdmin } from "~/typechain-types";
+import { OGSPPAdmin__factory } from "./../typechain-types/factories/OGSPPAdmin__factory";
 
 describe("DPP test coverage", () => {
   const buildDPPGetter = async (contract: DPP) => {
@@ -231,9 +233,9 @@ describe("DPP test coverage", () => {
       const _dppFactory = (await ethers.getContractFactory(
         "DPP"
       )) as DPP__factory;
-      const ogsDppSwapperFactory = (await ethers.getContractFactory(
-        "OGSDPPSwapper"
-      )) as OGSDPPSwapper__factory;
+      const ogsPPSwapperFactory = (await ethers.getContractFactory(
+        "OGSPPSwapper"
+      )) as OGSPPSwapper__factory;
       const factoryOfCloneFactory = (await ethers.getContractFactory(
         "CloneFactory"
       )) as CloneFactory__factory;
@@ -266,7 +268,7 @@ describe("DPP test coverage", () => {
       const dppFactory = resp_dodo_v2.dppFactory as DPPFactory;
       const dodoV2Proxy02 = resp_dodo_v2.dodoV2Proxy02 as DODOV2Proxy02;
 
-      const OGSDPPSwapper = await ogsDppSwapperFactory.deploy();
+      const ogsPPSwapper = await ogsPPSwapperFactory.deploy();
 
       const K = 0.5;
       const I = 2;
@@ -305,8 +307,15 @@ describe("DPP test coverage", () => {
       const dppBalanceGetter = await buildDPPGetter(dppTempl);
 
       // Doesn't work since Factory is the owner, need setup adjustment
-      const ogsDppTempl = _ogsdppFactory.attach(poolAddr);
-      await setPriceOrcaleInPool(ogsDppTempl);
+      const ogsDpp = _ogsdppFactory.attach(poolAddr);
+      const ogsDppOwnerAddress = await ogsDpp._OWNER_();
+    
+      const ogsPPAdminFactory = (await ethers.getContractFactory(
+        "OGSPPAdmin"
+      )) as OGSPPAdmin__factory;
+      const adminTempl = ogsPPAdminFactory.attach(ogsDppOwnerAddress);
+
+      await setPriceOrcaleWithAdmin(adminTempl);
 
       console.log({ K, I });
 
@@ -337,10 +346,10 @@ describe("DPP test coverage", () => {
 
         /** INTERFACE OF OGS DPP */
         await gtonToken.approve(
-          OGSDPPSwapper.address,
+          ogsPPSwapper.address,
           new Big(swapAmount).mul(1e18).toFixed()
         );
-        await OGSDPPSwapper.swapPrivatePool(
+        await ogsPPSwapper.swapPrivatePool(
           poolAddr,
           gtonToken.address,
           usdcToken.address,
@@ -370,12 +379,25 @@ describe("DPP test coverage", () => {
 });
 
 async function setPriceOrcaleInPool(pool: OGSPPool) {
+  const donProxy = await deployOracleMocks();
+
+  const priceProxySetTx = await pool.updatePriceProxy(donProxy.address);
+  console.log("Dpp price proxy set TX hash:" + priceProxySetTx.hash);
+}
+
+async function setPriceOrcaleWithAdmin(admin: OGSPPAdmin) {
+  const donProxy = await deployOracleMocks();
+
+  const priceProxySetTx = await admin.updatePriceProxy(donProxy.address);
+  console.log("Dpp price proxy set (through admin) TX hash:" + priceProxySetTx.hash);
+}
+
+async function deployOracleMocks() {
   const donOracleMockFactory = (await ethers.getContractFactory("AggregatorProxyMock")) as AggregatorProxyMock__factory;
   const donProxyFactory = (await ethers.getContractFactory("DONPriceProxy")) as DONPriceProxy__factory;
 
   const orcale = await donOracleMockFactory.deploy(10000, 4);
   const donProxy = await donProxyFactory.deploy(orcale.address);
-
-  const priceProxySetTx = await pool.updatePriceProxy(donProxy.address);
-  console.log("Dpp price proxy set TX hash:" + priceProxySetTx.hash);
+  console.log("DON price oracle address:" + orcale.address);
+  return donProxy
 }

@@ -6,7 +6,7 @@ import { ERC20__factory } from "./../typechain-types/factories/ERC20__factory";
 
 import { OGSPPool__factory } from "./../typechain-types/factories/OGSPPool__factory";
 
-import { OGSDPPSwapper } from "./../typechain-types/OGSDPPSwapper";
+import { OGSPPSwapper } from "./../typechain-types/OGSPPSwapper";
 import { OGSPPool } from "./../typechain-types/OGSPPool";
 import { AggregatorProxyMock } from "./../typechain-types/AggregatorProxyMock";
 
@@ -15,7 +15,7 @@ import inquirer from "inquirer";
 import { ethers } from "hardhat";
 import Big from "big.js";
 
-import { OGSDPPSwapper__factory } from "./../typechain-types/factories/OGSDPPSwapper__factory";
+import { OGSPPSwapper__factory } from "./../typechain-types/factories/OGSPPSwapper__factory";
 import { isNil } from "lodash";
 
 type InquirerQuestion = { type: string; name: string; message: string };
@@ -25,7 +25,7 @@ type OGSContext = {
   base: ERC20;
   quote: ERC20;
   eacProxyMock?: AggregatorProxyMock;
-  ogsDPPSwapper: OGSDPPSwapper;
+  ogsPPSwapper: OGSPPSwapper;
   ogsPPool: OGSPPool;
 };
 type OGSDeployResult = {
@@ -109,13 +109,13 @@ class QuestionsHandler {
         const swapAmount = spl[3];
 
         await tokensToERC20[spl[1]].approve(
-          this.ogs_context.ogsDPPSwapper.address,
+          this.ogs_context.ogsPPSwapper.address,
           new Big(swapAmount).mul(1e18).toFixed()
         );
 
         console.log(
           `swap via ogs executed successfully. check tx: ${(
-            await this.ogs_context.ogsDPPSwapper.swapPrivatePool(
+            await this.ogs_context.ogsPPSwapper.swapPrivatePool(
               this.deployResult.poolAddr,
               tokens[spl[1]],
               tokens[spl[2]],
@@ -133,7 +133,7 @@ class QuestionsHandler {
 }
 async function start() {
   const factories = {
-    ogsDPPSwapper: (await ethers.getContractFactory("OGSDPPSwapper")) as OGSDPPSwapper__factory,
+    ogsPPSwapper: (await ethers.getContractFactory("OGSPPSwapper")) as OGSPPSwapper__factory,
     ogsPPool: (await ethers.getContractFactory(
       "OGSPPool"
     )) as OGSPPool__factory,
@@ -184,7 +184,7 @@ async function start() {
       dodoMineV3Proxy: "0xBd1579Bf8697479AE42F1918f198D7A3C521F371",
       dodoRouteProxy: "0xDF05E6c6885952a08c5497BC3C32E1EE25Db382C",
     },
-    OGSDPPSwapper: "0xcdA454333f7D5c03527408C5aC0f376C4546443a",
+    ogsPPSwapper: "0xcdA454333f7D5c03527408C5aC0f376C4546443a",
     poolAddr: "0x7EA5dF9E03A567b1c511035E76394e5e76067A61",
     poolAddrList: ["0x7EA5dF9E03A567b1c511035E76394e5e76067A61"],
     gtonToken: "0xc4d0a76ba5909c8e764b67acf7360f843fbacb2d",
@@ -194,7 +194,7 @@ async function start() {
   const builtContracts = {
     base: factories.erc20.attach(deployResult.gtonToken),
     quote: factories.erc20.attach(deployResult.usdcToken),
-    ogsDPPSwapper: factories.ogsDPPSwapper.attach(deployResult.OGSDPPSwapper),
+    ogsPPSwapper: factories.ogsPPSwapper.attach(deployResult.ogsPPSwapper),
     ogsPPool: factories.ogsPPool.attach(deployResult.poolAddr),
   };
   const questionsHandler = new QuestionsHandler(builtContracts, deployResult);

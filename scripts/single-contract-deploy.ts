@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 
-import { OGSDPPSwapper__factory } from "../typechain-types/factories/OGSDPPSwapper__factory";
+import { OGSPPSwapper__factory } from "../typechain-types/factories/OGSPPSwapper__factory";
 
 async function mn() {
     await deploySwapper()
@@ -8,11 +8,11 @@ async function mn() {
 
 async function deploySwapper() {
     const factory = (await ethers.getContractFactory(
-        "OGSDPPSwapper"
-    )) as OGSDPPSwapper__factory;
+        "OGSPPSwapper"
+    )) as OGSPPSwapper__factory;
 
     const contract = await factory.deploy();
-    console.log("OGSDPPSwapper address:" + contract.address);
+    console.log("OGSPPSwapper address:" + contract.address);
 }
 
 mn()

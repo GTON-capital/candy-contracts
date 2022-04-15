@@ -14,7 +14,7 @@ interface IDPPTrader {
     function sellQuote(address to) external returns (uint256 receiveBaseAmount);
 }
 
-contract OGSDPPSwapper is ReentrancyGuard {
+contract OGSPPSwapper is ReentrancyGuard {
     using SafeMath for uint256;
 
     function swapPrivatePool(
@@ -25,10 +25,10 @@ contract OGSDPPSwapper is ReentrancyGuard {
         address to,
         bool isSellingBase
     ) external preventReentrant {
-        require(inputToken != outputToken, "OGSDPPSwapper: tokens cannot be same");
+        require(inputToken != outputToken, "OGSPPSwapper: tokens cannot be same");
         require(
             inputToken != address(0) && outputToken != address(0),
-            "OGSDPPSwapper: tokens cannot be empty"
+            "OGSPPSwapper: tokens cannot be empty"
         );
 
         uint256 balanceBefore = IERC20(outputToken).balanceOf(to);
@@ -43,6 +43,6 @@ contract OGSDPPSwapper is ReentrancyGuard {
 
         uint256 balanceAfter = IERC20(outputToken).balanceOf(to);
 
-        require(balanceAfter > balanceBefore, "OGSDPPSwapper: invalid swap");
+        require(balanceAfter > balanceBefore, "OGSPPSwapper: invalid swap");
     }
 }
