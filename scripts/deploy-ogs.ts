@@ -57,14 +57,13 @@ async function start() {
 
   const cloneFactoryContract = await factoryOfCloneFactory.deploy();
 
-  const weth = await wethFactory.deploy();
+  // const weth = await wethFactory.deploy();
 
   // GNOSIS SAFE
   const multisig = Wallet.createRandom();
 
   const input: core.Input = {
     deployer,
-    wethAddress: weth.address,
     multisigAddress: multisig.address,
     cloneFactoryAddress: cloneFactoryContract.address,
     initializableERC20Address: gtonToken.address,
@@ -74,7 +73,7 @@ async function start() {
 
   const resp_dodo_v2 = await core.deployDODO_V2(input);
 
-  const dodoDppProxy = resp_dodo_v2.dodoDppProxy as DODODppProxy;
+  const dodoDppProxy = resp_dodo_v2?.dodoDppProxy as DODODppProxy;
   const dppFactory = resp_dodo_v2.dppFactory as DPPFactory;
 
   const OGSPPSwapper = await ogsPPSwapperFactory.deploy();
@@ -140,4 +139,9 @@ async function start() {
   // );
 }
 
-start();
+start()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

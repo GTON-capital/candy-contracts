@@ -1,8 +1,17 @@
-import { FeeRateModel } from "./../typechain-types/FeeRateModel";
+const hre = require("hardhat");
+import { ethers } from "hardhat";
+import { Signer, Contract, ContractFactory } from "ethers";
+
+const fs = require("fs");
+const file = fs.createWriteStream("../deploy-main-migration.txt", { flags: "a" });
+let logger = new console.Console(file, file);
+const { GetConfig } = require("../configAdapter.js");
+
+import { FeeRateModel } from "./../typechain-types";
 import { DODOApprove } from "./../typechain-types/DODOApprove";
-import { DODOV2Proxy02__factory } from "./../typechain-types/factories/DODOV2Proxy02__factory";
-import { DODOMineV3Proxy__factory } from "./../typechain-types/factories/DODOMineV3Proxy__factory";
-import { DODORouteProxy__factory } from "./../typechain-types/factories/DODORouteProxy__factory";
+import { DODOV2Proxy02__factory } from "./../typechain-types";
+import { DODOMineV3Proxy__factory } from "./../typechain-types";
+import { DODORouteProxy__factory } from "./../typechain-types";
 import { DODODppProxy__factory } from "./../typechain-types/factories/DODODppProxy__factory";
 import { DODOCpProxy__factory } from "./../typechain-types/factories/DODOCpProxy__factory";
 import { DODODspProxy__factory } from "./../typechain-types/factories/DODODspProxy__factory";
@@ -26,7 +35,7 @@ import { InitializableERC20__factory } from "./../typechain-types/factories/Init
 import { CP__factory } from "./../typechain-types/factories/CP__factory";
 import { OGSPPAdmin__factory } from "./../typechain-types/factories/OGSPPAdmin__factory";
 import { DSP__factory } from "./../typechain-types/factories/DSP__factory";
-import { DVM__factory } from "./../typechain-types/factories/DVM__factory";
+import { DVM__factory } from "./../typechain-types";
 import { PermissionManager__factory } from "./../typechain-types/factories/PermissionManager__factory";
 import { FeeRateImpl__factory } from "./../typechain-types/factories/FeeRateImpl__factory";
 import { UserQuota__factory } from "./../typechain-types/factories/UserQuota__factory";
@@ -45,8 +54,6 @@ import { CloneFactory__factory } from "../typechain-types/factories/CloneFactory
 import { CustomMintableERC20__factory } from "../typechain-types/factories/CustomMintableERC20__factory";
 import { CustomERC20__factory } from "../typechain-types/factories/CustomERC20__factory";
 import { ERC20V3Factory__factory } from "../typechain-types/factories/ERC20V3Factory__factory";
-import { ethers } from "hardhat";
-import { Signer } from "ethers";
 
 import { OGSPPool } from "../typechain-types/OGSPPool";
 import { OGSPPool__factory } from "../typechain-types/factories/OGSPPool__factory";
@@ -116,6 +123,7 @@ export namespace ogs {
   export type Output = {};
 
   export async function deployOGS(config: Input) {
+
     const builtFactories = {
       cloneFactoryFactory: (await ethers.getContractFactory(
         "CloneFactory"
@@ -243,7 +251,6 @@ export namespace ogs {
 export namespace core {
   export type Input = {
     deployer: Signer;
-    wethAddress: string;
     multisigAddress: string;
     cloneFactoryAddress: string;
     initializableERC20Address: string;
@@ -254,6 +261,35 @@ export namespace core {
   export type Output = {};
 
   export async function deployDODO_V2(config: Input) {
+
+    const networkName = hre.network.name;
+    console.log("NETWORK: " + networkName);
+    let CONFIG = GetConfig(hre.network.name);
+  
+    if (CONFIG == null) {
+      const errorString: string = "Missing config for: " + networkName
+      console.log(errorString);
+      throw new Error(errorString);
+    }
+    console.log("Config ok");
+
+    async function attachOrDeploy(contractName: string, factory: ContractFactory) {
+      console.log("ContractKey:" + contractName);
+      const address: string = CONFIG.MultiCall;
+      console.log("=====name:" + address);
+      var contract: Contract;
+      if (address == "") {
+        console.log("Deploying new:");
+        contract = await factory.deploy();
+        await contract.deployed();
+      } else {
+        console.log("Deployment exists:");
+        contract = factory.attach(CONFIG.contractName);
+      }
+      logger.log(contractName + " address: ", contract.address);
+      return contract
+    }
+
     const builtFactories = {
       multicall: (await ethers.getContractFactory(
         "Multicall"
@@ -374,15 +410,16 @@ export namespace core {
     // deploy multicall
     const buildContracts: Record<string, any> = {};
 
-    buildContracts.multicall = await builtFactories.multicall.deploy();
+    buildContracts.multicall = await attachOrDeploy("MultiCall", builtFactories.multicall);
+
     buildContracts.dodoSellHelper =
       await builtFactories.dodoSellHelper.deploy();
     buildContracts.dodoSwapHelper = await builtFactories.dodoSwapHelper.deploy(
-      config.wethAddress
+      CONFIG.WETH
     );
     buildContracts.erc20helper = await builtFactories.erc20helper.deploy();
     buildContracts.dodoCalleeHelper =
-      await builtFactories.dodoCalleeHelper.deploy(config.wethAddress);
+      await builtFactories.dodoCalleeHelper.deploy(CONFIG.WETH);
     buildContracts.dodoV1PmmHelper =
       await builtFactories.dodoV1PmmHelper.deploy();
 
@@ -440,7 +477,6 @@ export namespace core {
     buildContracts.erc20V2Factory = erc20V2Factory;
 
     // requires init
-
     const dvmFactory = await builtFactories.dvmFactory.deploy(
       config.cloneFactoryAddress,
       buildContracts.dvmTemplate.address,
@@ -537,26 +573,26 @@ export namespace core {
 
     buildContracts.dodoV2Proxy02 = await builtFactories.dodoV2Proxy02.deploy(
       buildContracts.dvmFactory.address,
-      config.wethAddress,
+      CONFIG.WETH,
       buildContracts.dodoApproveProxy.address,
       buildContracts.dodoSellHelper.address
     );
 
     buildContracts.dodoDspProxy = await builtFactories.dodoDspProxy.deploy(
       buildContracts.dspFactory.address,
-      config.wethAddress,
+      CONFIG.WETH,
       buildContracts.dodoApproveProxy.address
     );
 
     buildContracts.dodoCpProxy = await builtFactories.dodoCpProxy.deploy(
-      config.wethAddress,
+      CONFIG.WETH,
       buildContracts.crowdPoolingFactory.address,
       buildContracts.upCrowdPoolingFactory.address,
       buildContracts.dodoApproveProxy.address
     );
 
     buildContracts.dodoDppProxy = await builtFactories.dodoDppProxy.deploy(
-      config.wethAddress,
+      CONFIG.WETH,
       buildContracts.dodoApproveProxy.address,
       buildContracts.dppFactory.address
     );
@@ -573,7 +609,7 @@ export namespace core {
 
     // DODO Route Proxy
     const dodoRouteProxy = await builtFactories.dodoRouteProxy.deploy(
-      config.wethAddress,
+      CONFIG.WETH,
       buildContracts.dodoApproveProxy.address
     );
     buildContracts.dodoRouteProxy = dodoRouteProxy;
