@@ -32,7 +32,7 @@ const DvmFactory = artifacts.require("DVMFactory");
 const DppFactory = artifacts.require("DPPFactory");
 const DspFactory = artifacts.require("DSPFactory");
 const CpFactory = artifacts.require("CrowdPoolingFactory");
-const UpCpFactory = artifacts.require("UpCrowdPoolingFactory");
+const UpCrowdPoolingFactory = artifacts.require("UpCrowdPoolingFactory");
 const MineV3Registry = artifacts.require("DODOMineV3Registry");
 const MineV2Factory = artifacts.require("DODOMineV2Factory");
 
@@ -55,6 +55,7 @@ module.exports = async (deployer, network, accounts) => {
   if (CONFIG == null) return;
   //TOKEN
   let WETHAddress = CONFIG.WETH;
+  
 
   //Helper
   let DODOSellHelperAddress = CONFIG.DODOSellHelper;
@@ -86,7 +87,7 @@ module.exports = async (deployer, network, accounts) => {
   let DspFactoryAddress = CONFIG.DSPFactory;
   let DppFactoryAddress = CONFIG.DPPFactory;
   let CpFactoryAddress = CONFIG.CrowdPoolingFactory;
-  let UpCpFactoryAddress = CONFIG.UpCpFactory;
+  let UpCrowdPoolingFactoryAddress = CONFIG.UpCrowdPoolingFactory;
   let ERC20V2FactoryAddress = CONFIG.ERC20V2Factory;
   let DODOMineV3RegistryAddress = CONFIG.DODOMineV3Registry;
   let DODOMineV2FactoryAddress = CONFIG.DODOMineV2Factory;
@@ -318,9 +319,9 @@ module.exports = async (deployer, network, accounts) => {
       logger.log("Init DppFactory Tx:", tx.tx);
     }
 
-    if (UpCpFactoryAddress == "") {
+    if (UpCrowdPoolingFactoryAddress == "") {
       await deployer.deploy(
-        UpCpFactory,
+        UpCrowdPoolingFactory,
         CloneFactoryAddress,
         CpTemplateAddress,
         DvmFactoryAddress,
@@ -328,11 +329,11 @@ module.exports = async (deployer, network, accounts) => {
         DefaultMtFeeRateAddress,
         DefaultPermissionAddress
       );
-      UpCpFactoryAddress = UpCpFactory.address;
-      logger.log("UpCrowdPoolingFactory address: ", UpCpFactory.address);
-      const UpCpFactoryInstance = await UpCpFactory.at(UpCpFactory.address);
-      var tx = await UpCpFactoryInstance.initOwner(multiSigAddress);
-      logger.log("Init UpCpFactory Tx:", tx.tx);
+      UpCrowdPoolingFactoryAddress = UpCrowdPoolingFactory.address;
+      logger.log("UpCrowdPoolingFactory address: ", UpCrowdPoolingFactory.address);
+      const UpCrowdPoolingFactoryInstance = await UpCrowdPoolingFactory.at(UpCrowdPoolingFactory.address);
+      var tx = await UpCrowdPoolingFactoryInstance.initOwner(multiSigAddress);
+      logger.log("Init UpCrowdPoolingFactory Tx:", tx.tx);
     }
 
     if (CpFactoryAddress == "") {
@@ -447,7 +448,7 @@ module.exports = async (deployer, network, accounts) => {
         DODOCpProxy,
         WETHAddress,
         CpFactoryAddress,
-        UpCpFactoryAddress,
+        UpCrowdPoolingFactoryAddress,
         DODOApproveProxyAddress
       );
       DODOCpProxyAddress = DODOCpProxy.address;

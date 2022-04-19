@@ -24,7 +24,7 @@ import { ERC20PresetFixedSupply } from "../typechain-types/ERC20PresetFixedSuppl
 import { ERC20PresetFixedSupply__factory } from "../typechain-types/factories/ERC20PresetFixedSupply__factory";
 import { WrappedNative__factory } from "./../typechain-types/factories/WrappedNative__factory";
 
-import { erc20v3, core, ogs  } from "./migrate";
+import { erc20v3, core, ogs } from "./migrate";
 import { prettyPrint, prettyPrintContractDeployment } from "./utils";
 import { DPP } from "../typechain-types/DPP";
 import { DPPFactory } from "./../typechain-types/DPPFactory";
@@ -62,6 +62,7 @@ describe("DPP test coverage", () => {
     };
   };
 
+  /*
   describe("trader tests", async () => {
     it("first buy", async () => {
       const [deployer, trader] = await ethers.getSigners();
@@ -202,6 +203,7 @@ describe("DPP test coverage", () => {
         ),
       });
     });
+    */
 
     it("buy and sell via DODOV2Proxy", async () => {
       const [deployer] = await ethers.getSigners();

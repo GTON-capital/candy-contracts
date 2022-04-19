@@ -1,4 +1,5 @@
-import { FreeToken__factory } from "./../typechain-types/factories/FreeToken__factory";
+import { FreeToken } from "./../typechain-types";
+import { FreeToken__factory } from "./../typechain-types";
 // import { FreeToken__factory } from "./../typechain-types/factories/FreeToken__factory";
 import { ERC20PresetMinterPauser__factory } from "./../typechain-types/factories/ERC20PresetMinterPauser__factory";
 import Big from "big.js";
@@ -21,8 +22,10 @@ import {
   DPPFactory,
   DODOV2Proxy02,
 } from "~/typechain-types";
-import { core } from "../tests/migrate";
+import { core, getConfig, attachOrDeploy } from "../tests/migrate";
 import { WrappedNative__factory } from "./../typechain-types/factories/WrappedNative__factory";
+
+let CONFIG = getConfig();
 
 async function start() {
   const [deployer] = await ethers.getSigners();
@@ -31,8 +34,21 @@ async function start() {
     "contracts/ERC20/FreeToken.sol:FreeToken"
   )) as FreeToken__factory;
 
-  const gtonToken = await erc20factory.deploy("GTON Capital Token", "GTON");
-  const usdcToken = await erc20factory.deploy("USD Coin", "USDC");
+  const newDeploy = false;
+
+  var gtonToken: FreeToken
+  var usdcToken: FreeToken
+  if (newDeploy) {
+    gtonToken = 
+      await erc20factory.deploy("GTON Capital Token", "GTON");
+    usdcToken = 
+      await erc20factory.deploy("USD Coin", "USDC");
+  } else {
+    gtonToken = 
+      erc20factory.attach("0x84aa0efb16080d8bd7bb9d276aba0854627ca469");
+    usdcToken = 
+      erc20factory.attach("0x97f3e0f6e33f3ccb2396965bb4656a405c15b114");
+  } 
 
   await gtonToken.freeMint(
     deployer.address,
@@ -43,9 +59,9 @@ async function start() {
     new Big(100_000).mul(1e18).toFixed()
   );
 
-  const wethFactory = (await ethers.getContractFactory(
-    "WrappedNative"
-  )) as WrappedNative__factory;
+  // const wethFactory = (await ethers.getContractFactory(
+  //   "WrappedNative"
+  // )) as WrappedNative__factory;
 
   const _dppFactory = (await ethers.getContractFactory("DPP")) as DPP__factory;
   const ogsPPSwapperFactory = (await ethers.getContractFactory(
@@ -55,28 +71,30 @@ async function start() {
     "CloneFactory"
   )) as CloneFactory__factory;
 
-  const cloneFactoryContract = await factoryOfCloneFactory.deploy();
+
+  const cloneFactoryContract = await attachOrDeploy("CloneFactory", factoryOfCloneFactory);
 
   // const weth = await wethFactory.deploy();
 
   // GNOSIS SAFE
-  const multisig = Wallet.createRandom();
+  // const multisig = Wallet.createRandom();
 
   const input: core.Input = {
     deployer,
-    multisigAddress: multisig.address,
+    multisigAddress: deployer.address,
     cloneFactoryAddress: cloneFactoryContract.address,
-    initializableERC20Address: gtonToken.address,
-    customERC20Address: gtonToken.address,
+    // initializableERC20Address: gtonToken.address,
+    // customERC20Address: gtonToken.address,
     defaultMaintainer: deployer.address,
   };
 
   const resp_dodo_v2 = await core.deployDODO_V2(input);
 
-  const dodoDppProxy = resp_dodo_v2?.dodoDppProxy as DODODppProxy;
+  const dodoDppProxy = resp_dodo_v2.dodoDppProxy as DODODppProxy;
   const dppFactory = resp_dodo_v2.dppFactory as DPPFactory;
 
-  const OGSPPSwapper = await ogsPPSwapperFactory.deploy();
+  const OGSPPSwapper = 
+    await attachOrDeploy("OGSPPSwapper", ogsPPSwapperFactory);
 
   const K = 0.5;
   const I = 2;
@@ -141,7 +159,7 @@ async function start() {
 
 start()
   .then(() => process.exit(0))
-  .catch((error) => {
+  .catch(error => {
     console.error(error);
     process.exit(1);
   });

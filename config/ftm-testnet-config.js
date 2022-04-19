@@ -23,6 +23,7 @@ module.exports = {
         DSP: "",
         DPPAdmin: "",
         CP: "",
+        ERC20MineV2: "",
         ERC20MineV3: "",
 
         ERC20: "",
@@ -33,7 +34,7 @@ module.exports = {
         DVMFactory: "",
         DPPFactory: "",
         DSPFactory: "",
-        UpCpFactory: "",
+        UpCrowdPoolingFactory: "",
         CrowdPoolingFactory: "",
         ERC20Factory: "",
         ERC20V2Factory: "",
@@ -72,6 +73,10 @@ module.exports = {
         defaultMaintainer: "",
 
         //EXTRAS
-        "MultiCall": "",
+        MultiCall: "",
+        InitializableERC20: "",
+        ERC20Mine: "",
+        OGSPPSwapper: "",
+        DODOSwapCalcHelper: "",
     }
 }
