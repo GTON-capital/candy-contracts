@@ -22,10 +22,8 @@ import {
   DPPFactory,
   DODOV2Proxy02,
 } from "~/typechain-types";
-import { core, getConfig, attachOrDeploy } from "../tests/migrate";
+import { core, attachOrDeploy, contractNeedsInit } from "../tests/migrate";
 import { WrappedNative__factory } from "./../typechain-types/factories/WrappedNative__factory";
-
-let CONFIG = getConfig();
 
 async function start() {
   const [deployer] = await ethers.getSigners();
