@@ -80,5 +80,11 @@ module.exports = {
         OGSPPSwapper: "0xDdC309CFF631c05267d30f9B156B4D24ad45e2b3",
         DODOSwapCalcHelper: "0xDb3c478F834A830073bE74DD49977A7662Ec1A64",
         ERC20Helper: "0x62472074dDC90Ba7AfF591A9C531b3Ec84426Ea7",
+        AggregatorProxyMock: "",
+        DONPriceProxy: "",
+
+        // Addresses of main pair tokens
+        GTONAddress: "0xc4d0a76ba5909c8e764b67acf7360f843fbacb2d",
+        USDCAddress: "0xA2DCeFfc29003101b4bca24134dd1437106A7f81",
     }
 }

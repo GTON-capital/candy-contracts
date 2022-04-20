@@ -10,7 +10,7 @@ node_modules/
 coverage/
 lint/
 script/
-flattered/
+flattened/
 
 deploy-detail-v2.0.txt
 deploy-detail-periphery.txt
