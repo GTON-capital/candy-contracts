@@ -255,18 +255,17 @@ describe("DPP test coverage", () => {
 
       const input: core.Input = {
         deployer,
-        wethAddress: weth.address,
         multisigAddress: multisig.address,
         cloneFactoryAddress: cloneFactoryContract.address,
         // cloneFactoryAddress: erc20v3_res.cloneFactoryContract.address,
-        initializableERC20Address: gtonToken.address,
-        customERC20Address: gtonToken.address,
+        // initializableERC20Address: gtonToken.address,
+        // customERC20Address: gtonToken.address,
         defaultMaintainer: deployer.address,
       };
 
       const resp_dodo_v2 = await core.deployDODO_V2(input);
 
-      const dodoDppProxy = resp_dodo_v2.dodoDppProxy as DODODppProxy;
+      const dppProxy = resp_dodo_v2.dppProxy as DODODppProxy;
       const dppFactory = resp_dodo_v2.dppFactory as DPPFactory;
       const dodoV2Proxy02 = resp_dodo_v2.dodoV2Proxy02 as DODOV2Proxy02;
 
@@ -285,7 +284,7 @@ describe("DPP test coverage", () => {
         new Big(10_000).mul(1e18).toFixed()
       );
 
-      const poolDeployResp = await dodoDppProxy.createDODOPrivatePool(
+      const poolDeployResp = await dppProxy.createDODOPrivatePool(
         gtonToken.address,
         usdcToken.address,
         new Big(10_000).mul(1e18).toFixed(), // BASE

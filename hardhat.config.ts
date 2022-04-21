@@ -19,18 +19,18 @@ export default {
     ftm: {
       // url: "https://rpc.ankr.com/fantom",
       url: "https://rpcapi-tracing.fantom.network",
-      accounts: process.env.PK ? [process.env.PK] : undefined,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : undefined,
     },
     goerli: {
       timeout: 60000,
       url: "https://rpc.goerli.mudit.blog/",
-      accounts: process.env.TESTNET_PK ? [process.env.TESTNET_PK] : undefined,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : undefined,
     },
     ftmTestnet: {
       // gas: 5000000,
       // url: "https://rpc.ankr.com/fantom",
       url: "https://rpc.testnet.fantom.network",
-      accounts: process.env.TESTNET_PK ? [process.env.TESTNET_PK] : undefined,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : undefined,
       // gasPrice: 35000000000,
     },
   },

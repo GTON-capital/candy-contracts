@@ -3,43 +3,33 @@ import Big from "big.js";
 import { BaseContract } from "ethers";
 
 // Interacting with tokens
-import { SimpleERC20 } from "./../typechain-types";
-import { SimpleERC20__factory } from "./../typechain-types";
+import { 
+  SimpleERC20,
+  DPPFactory,
+  DPPFactory__factory,
+  OGSPPool,
+  OGSPPool__factory,
+} from "./../typechain-types";
 
-import { DPPFactory } from "../typechain-types/DPPFactory";
-import { DPPFactory__factory } from "../typechain-types/factories/DPPFactory__factory";
-
-import { DODODppProxy } from "./../typechain-types";
-import { DODODppProxy__factory } from "./../typechain-types";
-
-import { OGSPPool } from "../typechain-types/OGSPPool";
-import { OGSPPool__factory } from "../typechain-types/factories/OGSPPool__factory";
-
-import { getConfig } from "../tests/migrate";
-
-let CONFIG = getConfig();
+import { core } from "../tests/migrate";
 
 let txProperties = () => {
   return { gasLimit: 500_000 };
 };
 
 async function mn() {
-  await deployGtonOGSPPool(CONFIG.USDCAddress)
+  let [deployer] = await ethers.getSigners();
+  const deploy: Record<string, any> = 
+    await core.deployOGS(deployer, deployer.address, deployer.address);
+  let base = deploy.gtonContract
+  let quote = deploy.usdcContract
+  await deployGtonOGSPPool(deploy, base, quote)
 }
 
 // Here we assume all the contracts are set in config & that the deployer got necessary number of each token
-async function deployGtonOGSPPool(pairAddress: string) {
+async function deployGtonOGSPPool(deploy: Record<string, any>, base: SimpleERC20, quote: SimpleERC20) {
 
   let [deployer] = await ethers.getSigners();
-
-  let dodoDppProxyFactory = (await ethers.getContractFactory(
-    "DODODppProxy"
-  )) as DODODppProxy__factory
-
-  let dodoDppProxy: DODODppProxy = dodoDppProxyFactory.attach(CONFIG.DPPProxy);
-  console.log("Connected to OGSPoolFactory: " + dodoDppProxy.address)
-
-  let gtonAddress = CONFIG.GTONAddress
 
   let I = 2;
   let K = 0.5;
@@ -49,22 +39,21 @@ async function deployGtonOGSPPool(pairAddress: string) {
 
   if (needsDeploy) {
     // Token spend should be approved to DODOApprove
-    let tokens = await getTokenContracts(pairAddress)
     let initialTokens = 100
-    let approveOne = await tokens[0].approve(
-      CONFIG.DODOApprove,
+    let approveOne = await base.approve(
+      deploy.dodoApprove.address,
       new Big(initialTokens).mul(1e18).toFixed()
     );
     await approveOne.wait()
-    let approveTwo = await tokens[1].approve(
-      CONFIG.DODOApprove,
+    let approveTwo = await quote.approve(
+      deploy.dodoApprove.address,
       new Big(initialTokens).mul(1e18).toFixed()
     );
     await approveTwo.wait()
     console.log("Trying pool deploy")
-    let poolDeployTx = await dodoDppProxy.createDODOPrivatePool(
-      gtonAddress, // GTON
-      pairAddress, // Pair token
+    let poolDeployTx = await deploy.dppProxy.createDODOPrivatePool(
+      base.address, // Base token address
+      quote.address, // Quote token address
       new Big(initialTokens).mul(1e18).toFixed(), // BASE
       new Big(initialTokens).mul(1e18).toFixed(), // QUOTE
       new Big(feeRate).mul(1e18).toFixed(),
@@ -79,11 +68,9 @@ async function deployGtonOGSPPool(pairAddress: string) {
     console.log("TX logs: " + receipt.logs)
   }
 
-  let dppFactory = await getDPPFactoryContract()
-
-  let poolAddrList = await dppFactory.getDODOPool(
-    gtonAddress, // GTON
-    pairAddress // Pair token
+  let poolAddrList = await deploy.dppFactory.getDODOPool(
+    base.address, // Base
+    quote.address // Quote
   );
 
   const poolAddr = poolAddrList[0];
@@ -96,10 +83,10 @@ async function deployGtonOGSPPool(pairAddress: string) {
   let initTransaction = await ogsPool.init(
     deployer.address,
     deployer.address,
-    gtonAddress,
-    pairAddress,
+    base.address, // Base token address
+    quote.address, // Quote token address
     new Big(0.002).mul(1e18).toFixed(), // default
-    CONFIG.FeeRateModel,
+    deploy.feeRateModel.address,
     new Big(0.1).mul(1e18).toFixed(), // default (K)
     new Big(100).mul(1e18).toFixed(), // default (I)
     true,
@@ -108,43 +95,20 @@ async function deployGtonOGSPPool(pairAddress: string) {
   console.log("Init TX hash:" + initTransaction.hash);
 }
 
-async function getDPPFactoryContract() {
-  let factory = (await ethers.getContractFactory(
-    "DPPFactory"
-  )) as DPPFactory__factory;
-  return factory.attach(CONFIG.DPPFactory);
-}
-
 async function deployOGSPPoolTemplate() {
   let factory = (await ethers.getContractFactory("OGSPPool")) as OGSPPool__factory;
   return await factory.deploy();
 }
 
-async function updateFactoryTemplate() {
+async function updateFactoryTemplate(deploy: Record<string, any>) {
   let template = await deployOGSPPoolTemplate()
 
   console.log("Template address:" + template.address)
 
-  let contract = await getDPPFactoryContract() as DPPFactory;
+  let contract = deploy.dppFactory;
   console.log("Factory address:" + contract.address);
   let tx = await contract.updateDppTemplate(template.address);
   console.log("Factory template update tx:" + tx.hash)
-}
-
-async function getERC20Factory() {
-  let factory = (await ethers.getContractFactory(
-    "SimpleERC20"
-  )) as SimpleERC20__factory;
-  return factory
-}
-
-async function getTokenContracts(pairAddress: string) {
-  let factory = await getERC20Factory();
-
-  let gtonContract: SimpleERC20 = factory.attach(CONFIG.GTONAddress);
-  let pairContract: SimpleERC20 = factory.attach(pairAddress);
-
-  return [gtonContract, pairContract]
 }
 
 mn()

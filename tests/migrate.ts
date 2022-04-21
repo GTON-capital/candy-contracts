@@ -6,45 +6,49 @@ const { GetConfig } = require("../configAdapter.js");
 let logFile = getLogFile()
 let outputWriter = new console.Console(logFile, logFile);
 
-import { DODOApprove } from "./../typechain-types/DODOApprove";
-import { DODOV2Proxy02__factory } from "./../typechain-types";
-import { DODOMineV3Proxy__factory } from "./../typechain-types";
-import { DODORouteProxy__factory } from "./../typechain-types";
-import { DODODppProxy__factory } from "./../typechain-types/factories/DODODppProxy__factory";
-import { DODOCpProxy__factory } from "./../typechain-types/factories/DODOCpProxy__factory";
-import { DODODspProxy__factory } from "./../typechain-types/factories/DODODspProxy__factory";
-import { UniAdapter__factory } from "./../typechain-types/factories/UniAdapter__factory";
-import { DODOV2Adapter__factory } from "./../typechain-types/factories/DODOV2Adapter__factory";
-import { DODOV1Adapter__factory } from "./../typechain-types/factories/DODOV1Adapter__factory";
-import { DODOV2RouteHelper__factory } from "./../typechain-types/factories/DODOV2RouteHelper__factory";
-import { DODOMineV2Factory__factory } from "./../typechain-types/factories/DODOMineV2Factory__factory";
-import { DODOMineV3Registry__factory } from "./../typechain-types/factories/DODOMineV3Registry__factory";
-import { UpCrowdPoolingFactory__factory } from "./../typechain-types/factories/UpCrowdPoolingFactory__factory";
-import { CrowdPoolingFactory__factory } from "./../typechain-types/factories/CrowdPoolingFactory__factory";
-import { DSPFactory__factory } from "./../typechain-types/factories/DSPFactory__factory";
-import { DPPFactory__factory } from "./../typechain-types/factories/DPPFactory__factory";
-import { DVMFactory__factory } from "./../typechain-types/factories/DVMFactory__factory";
-import { ERC20V2Factory__factory } from "./../typechain-types/factories/ERC20V2Factory__factory";
-import { DODOApproveProxy__factory } from "./../typechain-types/factories/DODOApproveProxy__factory";
-import { DODOApprove__factory } from "./../typechain-types/factories/DODOApprove__factory";
-import { ERC20MineV3__factory } from "./../typechain-types/factories/ERC20MineV3__factory";
-import { ERC20Mine__factory } from "./../typechain-types/factories/ERC20Mine__factory";
-import { InitializableERC20__factory } from "./../typechain-types/factories/InitializableERC20__factory";
-import { CP__factory } from "./../typechain-types/factories/CP__factory";
-import { OGSPPAdmin__factory } from "./../typechain-types/factories/OGSPPAdmin__factory";
-import { DSP__factory } from "./../typechain-types/factories/DSP__factory";
-import { DVM__factory } from "./../typechain-types";
-import { PermissionManager__factory } from "./../typechain-types/factories/PermissionManager__factory";
-import { FeeRateImpl__factory } from "./../typechain-types/factories/FeeRateImpl__factory";
-import { UserQuota__factory } from "./../typechain-types/factories/UserQuota__factory";
-import { FeeRateModel__factory } from "./../typechain-types/factories/FeeRateModel__factory";
-import { DODOV1PmmHelper__factory } from "./../typechain-types/factories/DODOV1PmmHelper__factory";
-import { DODOCalleeHelper__factory } from "./../typechain-types/factories/DODOCalleeHelper__factory";
-import { ERC20Helper__factory } from "./../typechain-types/factories/ERC20Helper__factory";
-import { DODOSwapCalcHelper__factory } from "./../typechain-types/factories/DODOSwapCalcHelper__factory";
-import { DODOSellHelper__factory } from "./../typechain-types/factories/DODOSellHelper__factory";
-import { Multicall__factory } from "./../typechain-types/factories/Multicall__factory";
-import { OGSPPool__factory } from "../typechain-types/factories/OGSPPool__factory";
+import {
+  CloneFactory__factory,
+  DODOApprove,
+  DODOV2Proxy02__factory,
+  DODOMineV3Proxy__factory,
+  DODORouteProxy__factory,
+  DODODppProxy__factory,
+  DODOCpProxy__factory,
+  DODODspProxy__factory,
+  UniAdapter__factory,
+  DODOV2Adapter__factory,
+  DODOV1Adapter__factory,
+  DODOV2RouteHelper__factory,
+  DODOMineV2Factory__factory,
+  DODOMineV3Registry__factory,
+  UpCrowdPoolingFactory__factory,
+  CrowdPoolingFactory__factory,
+  DSPFactory__factory,
+  DPPFactory__factory,
+  DVMFactory__factory,
+  ERC20V2Factory__factory,
+  DODOApproveProxy__factory,
+  DODOApprove__factory,
+  ERC20MineV3__factory,
+  ERC20Mine__factory,
+  InitializableERC20__factory,
+  CP__factory,
+  OGSPPAdmin__factory,
+  DSP__factory,
+  DVM__factory,
+  PermissionManager__factory,
+  FeeRateImpl__factory,
+  UserQuota__factory,
+  FeeRateModel__factory,
+  DODOV1PmmHelper__factory,
+  DODOCalleeHelper__factory,
+  ERC20Helper__factory,
+  DODOSwapCalcHelper__factory,
+  DODOSellHelper__factory,
+  Multicall__factory,
+  OGSPPool__factory,
+  SimpleERC20__factory,
+} from "~/typechain-types";
 
 function getLogFile() {
   const fs = require("fs");
@@ -165,18 +169,14 @@ export namespace erc20v3 {
 */
 
 export namespace core {
-  export type Input = {
-    deployer: Signer;
-    multisigAddress: string;
-    cloneFactoryAddress: string;
-    // initializableERC20Address: string;
-    // customERC20Address: string;
-    defaultMaintainer: string;
-  };
 
   export type Output = {};
 
-  export async function deployDODO_V2(config: Input) {
+  export async function deployOGS(
+    deployer: Signer,
+    multisigAddress: string,
+    defaultMaintainer: string
+  ) {
 
     const builtFactories = {
       multicall: (await ethers.getContractFactory(
@@ -281,7 +281,7 @@ export namespace core {
       dodoCpProxy: (await ethers.getContractFactory(
         "DODOCpProxy"
       )) as DODOCpProxy__factory,
-      dodoDppProxy: (await ethers.getContractFactory(
+      dppProxy: (await ethers.getContractFactory(
         "DODODppProxy"
       )) as DODODppProxy__factory,
       dodoRouteProxy: (await ethers.getContractFactory(
@@ -297,6 +297,11 @@ export namespace core {
 
     // deploy multicall
     const buildContracts: Record<string, any> = {};
+
+    const factoryOfCloneFactory = (await ethers.getContractFactory(
+      "CloneFactory"
+    )) as CloneFactory__factory;
+    buildContracts.cloneFactory = await attachOrDeploy("CloneFactory", factoryOfCloneFactory);
 
     buildContracts.multicall = await attachOrDeploy("MultiCall", builtFactories.multicall);
 
@@ -319,7 +324,7 @@ export namespace core {
 
     const feeRateModel = await attachOrDeploy("FeeRateModel", builtFactories.feeRateModel);
     if (contractNeedsInit("FeeRateModel")) {
-      await feeRateModel.initOwner(config.multisigAddress);
+      await feeRateModel.initOwner(multisigAddress);
     }
 
     buildContracts.feeRateModel = feeRateModel;
@@ -330,8 +335,8 @@ export namespace core {
     const feeRateImpl = await attachOrDeploy("FeeRateImpl", builtFactories.feeRateImpl);
     if (contractNeedsInit("FeeRateImpl")) {
       await feeRateImpl.init(
-        config.multisigAddress,
-        config.cloneFactoryAddress,
+        multisigAddress,
+        buildContracts.cloneFactory.address,
         buildContracts.userQuota.address
       );
     }
@@ -340,7 +345,7 @@ export namespace core {
     // requires an init
     const permissionManager = await attachOrDeploy("PermissionManager", builtFactories.permissionManager);
     if (contractNeedsInit("PermissionManager")) {
-      await permissionManager.initOwner(config.multisigAddress);
+      await permissionManager.initOwner(multisigAddress);
     }
     buildContracts.permissionManager = permissionManager;
 
@@ -386,30 +391,30 @@ export namespace core {
 
     // requires init
     const dvmFactoryPromise = () => builtFactories.dvmFactory.deploy(
-      config.cloneFactoryAddress,
+      buildContracts.cloneFactory.address,
       buildContracts.dvmTemplate.address,
-      config.defaultMaintainer,
+      defaultMaintainer,
       buildContracts.feeRateModel.address
     );
     const dvmFactory = 
       await attachOrDeploy("DVMFactory", builtFactories.dvmFactory, dvmFactoryPromise);
     if (contractNeedsInit("DVMFactory")) {
-      await dvmFactory.initOwner(config.multisigAddress);
+      await dvmFactory.initOwner(multisigAddress);
     }
     buildContracts.dvmFactory = dvmFactory;
 
     // DPP Factory
     const dppFactoryPromise = () => builtFactories.dppFactory.deploy(
-      config.cloneFactoryAddress,
+      buildContracts.cloneFactory.address,
       buildContracts.dppTemplate.address,
       buildContracts.dppAdminTemplate.address,
-      config.defaultMaintainer,
+      defaultMaintainer,
       buildContracts.feeRateModel.address,
       buildContracts.dodoApproveProxy.address
     );
     const dppFactory = await attachOrDeploy("DPPFactory", builtFactories.dppFactory, dppFactoryPromise);
     if (contractNeedsInit("DPPFactory")) {
-      await dppFactory.initOwner(config.multisigAddress);
+      await dppFactory.initOwner(multisigAddress);
     }
     buildContracts.dppFactory = dppFactory;
 
@@ -419,57 +424,57 @@ export namespace core {
     // UPCP Factory - UpCrowdPoolingFactory
     const upCrowdPoolingFactoryPromise = () => 
       builtFactories.upCrowdPoolingFactory.deploy(
-        config.cloneFactoryAddress,
+        buildContracts.cloneFactory.address,
         buildContracts.cpTemplate.address,
         buildContracts.dvmFactory.address,
-        config.defaultMaintainer,
+        defaultMaintainer,
         buildContracts.feeRateModel.address,
         buildContracts.permissionManager.address
       );
     const upCrowdPoolingFactory = 
       await attachOrDeploy("UpCrowdPoolingFactory", builtFactories.upCrowdPoolingFactory, upCrowdPoolingFactoryPromise);
     if (contractNeedsInit("PermissionManager")) {
-      (config.multisigAddress);
+      (multisigAddress);
     }
     buildContracts.upCrowdPoolingFactory = upCrowdPoolingFactory;
 
     // requires init
     // CP Factory - CrowdPoolingFactory
     const crowdPoolingFactoryPromise = () => builtFactories.crowdPoolingFactory.deploy(
-      config.cloneFactoryAddress,
+      buildContracts.cloneFactory.address,
       buildContracts.cpTemplate.address,
       buildContracts.dvmFactory.address,
-      config.defaultMaintainer,
+      defaultMaintainer,
       buildContracts.feeRateModel.address,
       buildContracts.permissionManager.address
     );
     const crowdPoolingFactory = 
       await attachOrDeploy("CrowdPoolingFactory", builtFactories.crowdPoolingFactory, crowdPoolingFactoryPromise);
     if (contractNeedsInit("CrowdPoolingFactory")) {
-      await crowdPoolingFactory.initOwner(config.multisigAddress);
+      await crowdPoolingFactory.initOwner(multisigAddress);
     }
     buildContracts.crowdPoolingFactory = crowdPoolingFactory;
 
     // requires init
     // DSP Factory Address
     const dspFactoryPromise = () => builtFactories.dspFactory.deploy(
-      config.cloneFactoryAddress,
+      buildContracts.cloneFactory.address,
       buildContracts.dspTemplate.address,
-      config.defaultMaintainer,
+      defaultMaintainer,
       buildContracts.feeRateModel.address
     );
     const dspFactory =
       await attachOrDeploy("DSPFactory", builtFactories.dspFactory, dspFactoryPromise);
     if (contractNeedsInit("DSPFactory")) {
-      await dspFactory.initOwner(config.multisigAddress);
+      await dspFactory.initOwner(multisigAddress);
     }
     buildContracts.dspFactory = dspFactory;
 
     // DODO Mine V2 Factory
     const dodoMineV2FactoryPromise = () => builtFactories.dodoMineV2Factory.deploy(
-      config.cloneFactoryAddress,
+      buildContracts.cloneFactory.address,
       buildContracts.erc20Mine.address, // erc20mineV2 actually
-      config.defaultMaintainer
+      defaultMaintainer
     );
     const dodoMineV2Factory =
       await attachOrDeploy("DODOMineV2Factory", builtFactories.dodoMineV2Factory, dodoMineV2FactoryPromise);
@@ -480,7 +485,7 @@ export namespace core {
     const dodoMineV3RegistryFactory =
       await attachOrDeploy("DODOMineV3Registry", builtFactories.dodoMineV3RegistryFactory); // rename?
     if (contractNeedsInit("DODOMineV3Registry")) {
-      await dodoMineV3RegistryFactory.initOwner(config.multisigAddress);
+      await dodoMineV3RegistryFactory.initOwner(multisigAddress);
     }
     buildContracts.dodoMineV3RegistryFactory = dodoMineV3RegistryFactory;
 
@@ -531,18 +536,18 @@ export namespace core {
       await attachOrDeploy("CpProxy", builtFactories.dodoCpProxy, dodoCpProxyPromise);
     buildContracts.dodoCpProxy = dodoCpProxy;
 
-    const dodoDppProxyPromise = () => builtFactories.dodoDppProxy.deploy(
+    const dppProxyPromise = () => builtFactories.dppProxy.deploy(
       CONFIG.WETH,
       buildContracts.dodoApproveProxy.address,
       buildContracts.dppFactory.address
     );
-    const dodoDppProxy = 
-      await attachOrDeploy("DPPProxy", builtFactories.dodoDppProxy, dodoDppProxyPromise);
-    buildContracts.dodoDppProxy = dodoDppProxy;
+    const dppProxy = 
+      await attachOrDeploy("DPPProxy", builtFactories.dppProxy, dppProxyPromise);
+    buildContracts.dppProxy = dppProxy;
 
     // dodo mine v3 proxy
     const dodoMineV3ProxyPromise = () => builtFactories.dodoMineV3Proxy.deploy(
-      config.cloneFactoryAddress,
+      buildContracts.cloneFactory.address,
       buildContracts.erc20MineV3.address,
       buildContracts.dodoApproveProxy.address,
       buildContracts.dodoMineV3RegistryFactory.address
@@ -550,7 +555,7 @@ export namespace core {
     const dodoMineV3Proxy = 
       await attachOrDeploy("DODOMineV3Proxy", builtFactories.dodoMineV3Proxy, dodoMineV3ProxyPromise);
     if (contractNeedsInit("DODOMineV3Proxy")) {
-      await dodoMineV3Proxy.initOwner(config.multisigAddress);
+      await dodoMineV3Proxy.initOwner(multisigAddress);
     }
     buildContracts.dodoMineV3Proxy = dodoMineV3Proxy;
 
@@ -566,11 +571,11 @@ export namespace core {
     // ApproveProxy init以及添加ProxyList
     // INIT ALL
     if (contractNeedsInit("DODOApproveProxy")) {
-      let tx = await dodoApproveProxy.init(config.multisigAddress, [
+      let tx = await dodoApproveProxy.init(multisigAddress, [
         buildContracts.dodoV2Proxy02.address,
         buildContracts.dodoDspProxy.address,
         buildContracts.dodoCpProxy.address,
-        buildContracts.dodoDppProxy.address,
+        buildContracts.dppProxy.address,
         buildContracts.dodoMineV3Proxy.address,
         buildContracts.dodoRouteProxy.address,
       ]);
@@ -579,38 +584,46 @@ export namespace core {
 
     if (contractNeedsInit("DODOApprove")) {
       await (buildContracts.dodoApprove as DODOApprove).init(
-        config.multisigAddress,
+        multisigAddress,
         dodoApproveProxy.address
       );
     }
 
     //Set FeeRateImpl
     await feeRateModel.setFeeProxy(buildContracts.feeRateImpl.address);
-    await feeRateModel.transferOwnership(config.multisigAddress);
+    await feeRateModel.transferOwnership(multisigAddress);
 
     /* Not sure if needed for now
     //ERC20V2Factory 设置fee
     await erc20V2Factory.changeCreateFee("100000000000000000");
-    await erc20V2Factory.transferOwnership(config.multisigAddress);
+    await erc20V2Factory.transferOwnership(multisigAddress);
     */
 
     //DODOMineV2Factory 设置个人账户为owner
     if (contractNeedsInit("DODOMineV2Factory")) {
-      await dodoMineV2Factory.initOwner(config.multisigAddress);
+      await dodoMineV2Factory.initOwner(multisigAddress);
     }
 
     //DODOMineV3Registry add Proxy as admin
     await dodoMineV3RegistryFactory.addAdminList(
       dodoMineV3RegistryFactory.address
     );
-    await dodoMineV3RegistryFactory.transferOwnership(config.multisigAddress);
+    await dodoMineV3RegistryFactory.transferOwnership(multisigAddress);
 
     //DPPFactory add DODProxy as admin
     const dppFactoryInst = await builtFactories.dppFactory.attach(
       dppFactory.address
     );
-    await dppFactoryInst.addAdminList(buildContracts.dodoDppProxy.address);
-    await dppFactoryInst.transferOwnership(config.multisigAddress);
+    await dppFactoryInst.addAdminList(buildContracts.dppProxy.address);
+    await dppFactoryInst.transferOwnership(multisigAddress);
+
+    // Our tokens
+    let factory = (await ethers.getContractFactory(
+      "SimpleERC20"
+    )) as SimpleERC20__factory;
+
+    buildContracts.gtonContract = factory.attach(CONFIG.GTONAddress);
+    buildContracts.usdcContract = factory.attach(CONFIG.USDCAddress);
 
     return buildContracts;
   }
@@ -631,8 +644,6 @@ export namespace ogs {
   export type Output = {};
 
   export async function deployOGS(config: Input) {
-
-    let CONFIG = getConfig();
 
     const builtFactories = {
       cloneFactoryFactory: (await ethers.getContractFactory(
@@ -669,7 +680,7 @@ export namespace ogs {
       dodoV2Adapter: (await ethers.getContractFactory(
         "DODOV2Adapter"
       )) as DODOV2Adapter__factory,
-      dodoDppProxy: (await ethers.getContractFactory(
+      dppProxy: (await ethers.getContractFactory(
         "DODODppProxy"
       )) as DODODppProxy__factory,
       dodoV2Proxy02: (await ethers.getContractFactory(
@@ -746,13 +757,13 @@ export namespace ogs {
     );
     buildContracts.dodoV2Proxy02 =
 
-    const dodoDppProxy = await builtFactories.dodoDppProxy.deploy(
+    const dppProxy = await builtFactories.dppProxy.deploy(
       config.wethAddress,
       buildContracts.dodoApproveProxy.address,
       buildContracts.dppFactory.address
     );
-    buildContracts.dodoDppProxy = dodoDppProxy;
-    // dodoDppProxy.init(await config.deployer.getAddress());
+    buildContracts.dppProxy = dppProxy;
+    // dppProxy.init(await config.deployer.getAddress());
     // if (contractNeedsInit("PermissionManager")) {
     // await dodoApproveProxy.initOwner(await config.deployer.getAddress());
     // }
@@ -762,7 +773,7 @@ export namespace ogs {
         buildContracts.dodoV2Proxy02?.address,
         buildContracts.dodoDspProxy?.address,
         buildContracts.dodoCpProxy?.address,
-        buildContracts.dodoDppProxy.address,
+        buildContracts.dppProxy.address,
         buildContracts.dodoMineV3Proxy?.address,
         buildContracts.dodoRouteProxy?.address,
       ].filter(Boolean)
