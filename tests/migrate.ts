@@ -1,13 +1,11 @@
 const hre = require("hardhat");
 import { ethers } from "hardhat";
 import { Signer, Contract, ContractFactory, Overrides } from "ethers";
-
-const fs = require("fs");
-const file = fs.createWriteStream("../deploy-main-migration.txt", { flags: "a" });
-let logger = new console.Console(file, file);
 const { GetConfig } = require("../configAdapter.js");
 
-import { FeeRateModel } from "./../typechain-types";
+let logFile = getLogFile()
+let outputWriter = new console.Console(logFile, logFile);
+
 import { DODOApprove } from "./../typechain-types/DODOApprove";
 import { DODOV2Proxy02__factory } from "./../typechain-types";
 import { DODOMineV3Proxy__factory } from "./../typechain-types";
@@ -46,17 +44,17 @@ import { ERC20Helper__factory } from "./../typechain-types/factories/ERC20Helper
 import { DODOSwapCalcHelper__factory } from "./../typechain-types/factories/DODOSwapCalcHelper__factory";
 import { DODOSellHelper__factory } from "./../typechain-types/factories/DODOSellHelper__factory";
 import { Multicall__factory } from "./../typechain-types/factories/Multicall__factory";
-import { CloneFactory } from "../typechain-types/CloneFactory";
-import { CustomMintableERC20 } from "../typechain-types/CustomMintableERC20";
-import { CustomERC20 } from "../typechain-types/CustomERC20";
-import { ERC20V3Factory } from "../typechain-types/ERC20V3Factory";
-import { CloneFactory__factory } from "../typechain-types/factories/CloneFactory__factory";
-import { CustomMintableERC20__factory } from "../typechain-types/factories/CustomMintableERC20__factory";
-import { CustomERC20__factory } from "../typechain-types/factories/CustomERC20__factory";
-import { ERC20V3Factory__factory } from "../typechain-types/factories/ERC20V3Factory__factory";
-
-import { OGSPPool } from "../typechain-types/OGSPPool";
 import { OGSPPool__factory } from "../typechain-types/factories/OGSPPool__factory";
+
+function getLogFile() {
+  const fs = require("fs");
+  let logDir = "./deploylog"
+  let logName = "/deploy-log.txt"
+  if (!fs.existsSync(logDir)){
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  return fs.createWriteStream(logDir + logName, { flags: "a" });
+}
 
 export function getConfig() {
   const networkName = hre.network.name;
@@ -82,19 +80,18 @@ export async function attachOrDeploy(
   console.log("\nContract: " + contractName);
   const address: string = CONFIG[contractName];
   var contract: Contract;
-  if (address == "") {
+  if (address == "" || address == undefined) {
     console.log("Deploying new:");
     contract = contractPromise ? await contractPromise() : await factory.deploy();
     await contract.deployed();
-  } else if (address == undefined) {
-    console.log("Please add " + contractName + " to config");
-    throw new Error("Missing config value");
   } else {
     console.log("Deployment exists:");
     contract = factory.attach(CONFIG[contractName]);
   }
   console.log("Address: " + contract.address);
-  await delay(100);
+  // With this output you can easily populate the Config file for your network
+  outputWriter.log(contractName + ": \"" + contract.address + "\",")
+  await delay(50);
   return contract
 }
 

@@ -11,6 +11,7 @@ coverage/
 lint/
 script/
 flattened/
+deploylog/
 
 deploy-detail-v2.0.txt
 deploy-detail-periphery.txt

@@ -28,6 +28,7 @@
     "test:dodo:goerli": "hardhat run --network goerli ./scripts/dpp-deploy.ts",
     "testnet:cli": "hardhat run --network ftmTestnet ./scripts/ogs-cli.ts",
     "ogs:deploy": "hardhat run --network ftmTestnet ./scripts/deploy-ogs.ts",
+    "ogs:deploy:local": "hardhat run --network localhost ./scripts/deploy-ogs.ts",
     "ogs:singledeploy": "hardhat run --network ftmTestnet ./scripts/single-contract-deploy.ts",
     "ogs:interact": "hardhat run --network ftmTestnet ./scripts/ogs-pool-interactions.ts"
   },
