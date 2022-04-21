@@ -21,17 +21,21 @@ async function mn() {
   let [deployer] = await ethers.getSigners();
   const deploy: Record<string, any> = 
     await core.deployOGS(deployer, deployer.address, deployer.address);
-  let base = deploy.gtonContract
-  let quote = deploy.usdcContract
-  await deployGtonOGSPPool(deploy, base, quote)
+  let quote = deploy.gtonContract
+  // Base an be null, in such case - pool is ETH-based
+  let base = deploy.usdcContract 
+  await deployGtonOGSPPool(deploy, quote, base)
 }
 
 // Here we assume all the contracts are set in config & that the deployer got necessary number of each token
-async function deployGtonOGSPPool(deploy: Record<string, any>, base: SimpleERC20, quote: SimpleERC20) {
+async function deployGtonOGSPPool(deploy: Record<string, any>, quote: SimpleERC20, base?: SimpleERC20) {
 
   let [deployer] = await ethers.getSigners();
 
-  let I = 2;
+  let baseAddress = base?.address ?? ethAddress
+  let quoteAddress = quote.address
+
+  let I = 1;
   let K = 0.5;
   let feeRate = 0.0;
 
@@ -40,11 +44,13 @@ async function deployGtonOGSPPool(deploy: Record<string, any>, base: SimpleERC20
   if (needsDeploy) {
     // Token spend should be approved to DODOApprove
     let initialTokens = 100
-    let approveOne = await base.approve(
-      deploy.dodoApprove.address,
-      new Big(initialTokens).mul(1e18).toFixed()
-    );
-    await approveOne.wait()
+    if (base) {
+      let approveOne = await base.approve(
+        deploy.dodoApprove.address,
+        new Big(initialTokens).mul(1e18).toFixed()
+      );
+      await approveOne.wait()
+    }
     let approveTwo = await quote.approve(
       deploy.dodoApprove.address,
       new Big(initialTokens).mul(1e18).toFixed()
@@ -52,15 +58,15 @@ async function deployGtonOGSPPool(deploy: Record<string, any>, base: SimpleERC20
     await approveTwo.wait()
     console.log("Trying pool deploy")
     let poolDeployTx = await deploy.dppProxy.createDODOPrivatePool(
-      base.address, // Base token address
-      quote.address, // Quote token address
+      baseAddress, // Base token address
+      quoteAddress, // Quote token address
       new Big(initialTokens).mul(1e18).toFixed(), // BASE
       new Big(initialTokens).mul(1e18).toFixed(), // QUOTE
       new Big(feeRate).mul(1e18).toFixed(),
       new Big(I).mul(1e18).toFixed(), // default (I)
       new Big(K).mul(1e18).toFixed(), // default (K)
       false,
-      "99999999999",
+      "9999999999",
       txProperties()
     );
     const receipt = await poolDeployTx.wait()
@@ -69,8 +75,8 @@ async function deployGtonOGSPPool(deploy: Record<string, any>, base: SimpleERC20
   }
 
   let poolAddrList = await deploy.dppFactory.getDODOPool(
-    base.address, // Base
-    quote.address // Quote
+    baseAddress, // Base
+    quoteAddress // Quote
   );
 
   const poolAddr = poolAddrList[0];
@@ -83,8 +89,8 @@ async function deployGtonOGSPPool(deploy: Record<string, any>, base: SimpleERC20
   let initTransaction = await ogsPool.init(
     deployer.address,
     deployer.address,
-    base.address, // Base token address
-    quote.address, // Quote token address
+    baseAddress, // Base token address
+    quoteAddress, // Quote token address
     new Big(0.002).mul(1e18).toFixed(), // default
     deploy.feeRateModel.address,
     new Big(0.1).mul(1e18).toFixed(), // default (K)
@@ -110,6 +116,8 @@ async function updateFactoryTemplate(deploy: Record<string, any>) {
   let tx = await contract.updateDppTemplate(template.address);
   console.log("Factory template update tx:" + tx.hash)
 }
+
+let ethAddress = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 
 mn()
   .then(() => process.exit(0))

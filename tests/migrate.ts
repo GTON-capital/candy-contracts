@@ -95,23 +95,12 @@ export async function attachOrDeploy(
   console.log("Address: " + contract.address);
   // With this output you can easily populate the Config file for your network
   outputWriter.log(contractName + ": \"" + contract.address + "\",")
-  await delay(50);
   return contract
 }
 
 export function contractNeedsInit(contractName: string) {
   const address: string = CONFIG[contractName];
-  if (address == "") {
-    return true
-  } else if (address == undefined) {
-    throw new Error("Missing config value");
-  } else {
-    return false
-  }
-}
-
-function delay(ms: number) {
-  return new Promise( resolve => setTimeout(resolve, ms) );
+  return address == "" || address == undefined
 }
 
 /*
@@ -364,15 +353,13 @@ export namespace core {
     buildContracts.erc20Mine = await attachOrDeploy("ERC20MineV2", builtFactories.erc20Mine); // rename?
     buildContracts.erc20MineV3 = await attachOrDeploy("ERC20MineV3", builtFactories.erc20MineV3);
 
-    const dodoApproveContract = await attachOrDeploy("DODOApprove", builtFactories.dodoApprove);
-    buildContracts.dodoApprove = dodoApproveContract;
+    buildContracts.dodoApprove = await attachOrDeploy("DODOApprove", builtFactories.dodoApprove);
 
     const dodoApproveProxyPromise = () => builtFactories.dodoApproveProxy.deploy(
-      dodoApproveContract.address
+      buildContracts.dodoApprove.address
     );
-    const dodoApproveProxy = 
+    buildContracts.dodoApproveProxy = 
       await attachOrDeploy("DODOApproveProxy", builtFactories.dodoApproveProxy, dodoApproveProxyPromise);
-    buildContracts.dodoApproveProxy = dodoApproveProxy;
 
     /* Not sure if needed for now
     // requires init
@@ -571,7 +558,7 @@ export namespace core {
     // ApproveProxy init以及添加ProxyList
     // INIT ALL
     if (contractNeedsInit("DODOApproveProxy")) {
-      let tx = await dodoApproveProxy.init(multisigAddress, [
+      let tx = await buildContracts.dodoApproveProxy.init(multisigAddress, [
         buildContracts.dodoV2Proxy02.address,
         buildContracts.dodoDspProxy.address,
         buildContracts.dodoCpProxy.address,
@@ -585,13 +572,15 @@ export namespace core {
     if (contractNeedsInit("DODOApprove")) {
       await (buildContracts.dodoApprove as DODOApprove).init(
         multisigAddress,
-        dodoApproveProxy.address
+        buildContracts.dodoApproveProxy.address
       );
     }
 
     //Set FeeRateImpl
-    await feeRateModel.setFeeProxy(buildContracts.feeRateImpl.address);
-    await feeRateModel.transferOwnership(multisigAddress);
+    if (contractNeedsInit("FeeRateModel")) {
+      await feeRateModel.setFeeProxy(buildContracts.feeRateImpl.address);
+      await feeRateModel.transferOwnership(multisigAddress);
+    }
 
     /* Not sure if needed for now
     //ERC20V2Factory 设置fee
@@ -605,17 +594,18 @@ export namespace core {
     }
 
     //DODOMineV3Registry add Proxy as admin
-    await dodoMineV3RegistryFactory.addAdminList(
-      dodoMineV3RegistryFactory.address
-    );
-    await dodoMineV3RegistryFactory.transferOwnership(multisigAddress);
+    if (contractNeedsInit("DODOMineV3Registry")) {
+      await dodoMineV3RegistryFactory.addAdminList(
+        dodoMineV3RegistryFactory.address
+      );
+      await dodoMineV3RegistryFactory.transferOwnership(multisigAddress);
+    }
 
     //DPPFactory add DODProxy as admin
-    const dppFactoryInst = await builtFactories.dppFactory.attach(
-      dppFactory.address
-    );
-    await dppFactoryInst.addAdminList(buildContracts.dppProxy.address);
-    await dppFactoryInst.transferOwnership(multisigAddress);
+    if (contractNeedsInit("DPPFactory")) {
+      await buildContracts.dppFactory.addAdminList(buildContracts.dppProxy.address);
+      await buildContracts.dppFactory.transferOwnership(multisigAddress);
+    }
 
     // Our tokens
     let factory = (await ethers.getContractFactory(
