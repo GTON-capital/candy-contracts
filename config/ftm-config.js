@@ -1,4 +1,4 @@
 module.exports = {
-    BSC_CONFIG: {
+    FTM_CONFIG: {
     }
 }

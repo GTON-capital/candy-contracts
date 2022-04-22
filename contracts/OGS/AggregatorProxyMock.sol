@@ -1,24 +1,13 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+pragma solidity =0.6.9;
 
+import { IEACAggregatorProxy } from "./intf/IEACAggregatorProxy.sol";
 
-interface IEACAggregatorProxy {
-    function latestRoundData() external view returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    );
-    
-    function decimals() external view returns (uint8);
-}
-
-contract EACAggregatorProxyMock is IEACAggregatorProxy {
+contract AggregatorProxyMock is IEACAggregatorProxy {
     int256 vanswer;
     uint8 vdecimals;
 
-    constructor(int256 _answer, uint8 _decimals) {
+    constructor(int256 _answer, uint8 _decimals) public {
         vanswer = _answer;
         vdecimals = _decimals;
     }

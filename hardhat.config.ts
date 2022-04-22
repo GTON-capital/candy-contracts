@@ -4,6 +4,10 @@ import "@nomiclabs/hardhat-waffle";
 import "hardhat-abi-exporter";
 import "@nomiclabs/hardhat-etherscan";
 
+import { resolve } from "path";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: resolve(__dirname, "./.env") });
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -15,19 +19,35 @@ export default {
     ftm: {
       // url: "https://rpc.ankr.com/fantom",
       url: "https://rpcapi-tracing.fantom.network",
-      accounts: process.env.PK ? [process.env.PK] : undefined,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : undefined,
     },
     goerli: {
       timeout: 60000,
       url: "https://rpc.goerli.mudit.blog/",
-      accounts: process.env.TESTNET_PK ? [process.env.TESTNET_PK] : undefined,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : undefined,
     },
-    ftmtestnet: {
+    ftmTestnet: {
       // gas: 5000000,
       // url: "https://rpc.ankr.com/fantom",
       url: "https://rpc.testnet.fantom.network",
-      accounts: process.env.TESTNET_PK ? [process.env.TESTNET_PK] : undefined,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : undefined,
+      // gasPrice: 35000000000,
     },
+  },
+  etherscan: {
+    apiKey: {
+      mainnet: process.env.ETHERSCAN,
+      ropsten: process.env.ETHERSCAN,
+      rinkeby: process.env.ETHERSCAN,
+      goerli: process.env.ETHERSCAN,
+      kovan: process.env.ETHERSCAN,
+      // ftm
+      opera: process.env.FTMSCAN,
+      ftmTestnet: process.env.FTMSCAN,
+      // polygon
+      polygon: process.env.POLYGONSCAN,
+      polygonMumbai: process.env.POLYGONSCAN,
+    }
   },
   solidity: {
     compilers: [
@@ -36,7 +56,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -45,7 +65,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -54,7 +74,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -63,7 +83,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -72,7 +92,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -81,7 +101,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -90,7 +110,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 999999,
+            runs: 200,
           },
         },
       },
@@ -103,10 +123,5 @@ export default {
   },
   mocha: {
     timeout: "100000000000000",
-  },
-  etherscan: {
-    apiKey: {
-      opera: "PYTF1XH3ND5KGGQCKREIQEZQ8X2M8R12SP",
-    },
   },
 };

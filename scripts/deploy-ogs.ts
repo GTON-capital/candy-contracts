@@ -1,4 +1,5 @@
-import { FreeToken__factory } from "./../typechain-types/factories/FreeToken__factory";
+import { FreeToken } from "./../typechain-types";
+import { FreeToken__factory } from "./../typechain-types";
 // import { FreeToken__factory } from "./../typechain-types/factories/FreeToken__factory";
 import { ERC20PresetMinterPauser__factory } from "./../typechain-types/factories/ERC20PresetMinterPauser__factory";
 import Big from "big.js";
@@ -6,23 +7,24 @@ import { ethers } from "hardhat";
 import { mapValues } from "lodash";
 import { Wallet } from "ethers";
 
-import { EACAggregatorProxyMock__factory } from "./../typechain-types/factories/EACAggregatorProxyMock__factory";
-import { DODODppProxy__factory } from "./../typechain-types/factories/DODODppProxy__factory";
-import { DODODppProxy } from "./../typechain-types/DODODppProxy";
-import { DODOV2Proxy02__factory } from "./../typechain-types/factories/DODOV2Proxy02__factory";
-import { DPPFactory__factory } from "./../typechain-types/factories/DPPFactory__factory";
-import { OGSDPP__factory } from "./../typechain-types/factories/OGSDPP__factory";
-import { ERC20PresetFixedSupply__factory } from "./../typechain-types/factories/ERC20PresetFixedSupply__factory";
-import { OGSPPool__factory } from "./../typechain-types/factories/OGSPPool__factory";
-import { FeeRateModel__factory } from "./../typechain-types/factories/FeeRateModel__factory";
 import {
   DPP__factory,
   CloneFactory__factory,
   DPPFactory,
   DODOV2Proxy02,
+  AggregatorProxyMock__factory,
+  DODODppProxy__factory,
+  DODODppProxy,
+  DODOV2Proxy02__factory,
+  DPPFactory__factory,
+  OGSPPSwapper__factory,
+  ERC20PresetFixedSupply__factory,
+  OGSPPool__factory,
+  FeeRateModel__factory,
+  WrappedNative__factory,
 } from "~/typechain-types";
-import { core } from "../tests/migrate";
-import { WrappedNative__factory } from "./../typechain-types/factories/WrappedNative__factory";
+
+import { core, attachOrDeploy, contractNeedsInit } from "../tests/migrate";
 
 async function start() {
   const [deployer] = await ethers.getSigners();
@@ -31,68 +33,69 @@ async function start() {
     "contracts/ERC20/FreeToken.sol:FreeToken"
   )) as FreeToken__factory;
 
-  const gtonToken = await erc20factory.deploy("GTON Capital Token", "GTON");
-  const usdcToken = await erc20factory.deploy("USD Coin", "USDC");
+  const newDeploy = false;
 
-  await gtonToken.freeMint(
-    deployer.address,
-    new Big(100_000).mul(1e18).toFixed()
-  );
-  await usdcToken.freeMint(
-    deployer.address,
-    new Big(100_000).mul(1e18).toFixed()
-  );
+  var gtonToken: FreeToken
+  var usdcToken: FreeToken
+  if (newDeploy) {
+    gtonToken = 
+      await erc20factory.deploy("GTON Capital Token", "GTON");
+    usdcToken = 
+      await erc20factory.deploy("USD Coin", "USDC");
+  } else {
+    gtonToken = 
+      erc20factory.attach("0x84aa0efb16080d8bd7bb9d276aba0854627ca469");
+    usdcToken = 
+      erc20factory.attach("0x97f3e0f6e33f3ccb2396965bb4656a405c15b114");
+  } 
 
-  const wethFactory = (await ethers.getContractFactory(
-    "WrappedNative"
-  )) as WrappedNative__factory;
+  // await gtonToken.freeMint(
+  //   deployer.address,
+  //   new Big(100_000).mul(1e18).toFixed()
+  // );
+  // await usdcToken.freeMint(
+  //   deployer.address,
+  //   new Big(100_000).mul(1e18).toFixed()
+  // );
+  
+
+  // const wethFactory = (await ethers.getContractFactory(
+  //   "WrappedNative"
+  // )) as WrappedNative__factory;
 
   const _dppFactory = (await ethers.getContractFactory("DPP")) as DPP__factory;
-  const ogsDppFactory = (await ethers.getContractFactory(
-    "OGSDPP"
-  )) as OGSDPP__factory;
-  const factoryOfCloneFactory = (await ethers.getContractFactory(
-    "CloneFactory"
-  )) as CloneFactory__factory;
+  const ogsPPSwapperFactory = (await ethers.getContractFactory(
+    "OGSPPSwapper"
+  )) as OGSPPSwapper__factory;
 
-  const cloneFactoryContract = await factoryOfCloneFactory.deploy();
-
-  const weth = await wethFactory.deploy();
+  // const weth = await wethFactory.deploy();
 
   // GNOSIS SAFE
-  const multisig = Wallet.createRandom();
+  // const multisig = Wallet.createRandom();
 
-  const input: core.Input = {
-    deployer,
-    wethAddress: weth.address,
-    multisigAddress: multisig.address,
-    cloneFactoryAddress: cloneFactoryContract.address,
-    initializableERC20Address: gtonToken.address,
-    customERC20Address: gtonToken.address,
-    defaultMaintainer: deployer.address,
-  };
+  const ogsDeploy = 
+    await core.deployOGS(deployer, deployer.address, deployer.address);
 
-  const resp_dodo_v2 = await core.deployDODO_V2(input);
+  const dppProxy = ogsDeploy.dppProxy as DODODppProxy;
+  const dppFactory = ogsDeploy.dppFactory as DPPFactory;
 
-  const dodoDppProxy = resp_dodo_v2.dodoDppProxy as DODODppProxy;
-  const dppFactory = resp_dodo_v2.dppFactory as DPPFactory;
-
-  const OGSDPP = await ogsDppFactory.deploy();
+  const OGSPPSwapper = 
+    await attachOrDeploy("OGSPPSwapper", ogsPPSwapperFactory);
 
   const K = 0.5;
   const I = 2;
   const feeRate = 0.0;
 
   await usdcToken.approve(
-    resp_dodo_v2.dodoApprove.address,
+    ogsDeploy.dodoApprove.address,
     new Big(10_000).mul(1e18).toFixed()
   );
   await gtonToken.approve(
-    resp_dodo_v2.dodoApprove.address,
+    ogsDeploy.dodoApprove.address,
     new Big(10_000).mul(1e18).toFixed()
   );
 
-  const poolDeployResp = await dodoDppProxy.createDODOPrivatePool(
+  const poolDeployResp = await dppProxy.createDODOPrivatePool(
     gtonToken.address,
     usdcToken.address,
     new Big(10_000).mul(1e18).toFixed(), // BASE
@@ -118,8 +121,8 @@ async function start() {
   console.log({ K, I });
 
   console.log({
-    resp: mapValues(resp_dodo_v2, (x) => x.address),
-    OGSDPP: OGSDPP.address,
+    resp: mapValues(ogsDeploy, (x) => x.address),
+    OGSPPSwapper: OGSPPSwapper.address,
     poolAddr,
     poolAddrList,
     gtonToken: gtonToken.address,
@@ -140,4 +143,9 @@ async function start() {
   // );
 }
 
-start();
+start()
+  .then(() => process.exit(0))
+  .catch(error => {
+    console.error(error);
+    process.exit(1);
+  });

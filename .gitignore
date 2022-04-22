@@ -10,7 +10,8 @@ node_modules/
 coverage/
 lint/
 script/
-flattered/
+flattened/
+deploylog/
 
 deploy-detail-v2.0.txt
 deploy-detail-periphery.txt
@@ -23,8 +24,8 @@ deploy-detail-erc20V3.txt
 *.swo
 *.swp
 
-
 node_modules
+package-lock.json
 
 #Hardhat files
 cache

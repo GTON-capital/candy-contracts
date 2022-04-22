@@ -52,7 +52,7 @@ module.exports = async (deployer, network, accounts) => {
     let DspFactoryAddress = CONFIG.DSPFactory;
     let DvmFactoryAddress = CONFIG.DVMFactory;
     let DppFactoryAddress = CONFIG.DPPFactory;
-    let UpCpFactoryAddress = CONFIG.UpCpFactory;
+    let UpCrowdPoolingFactoryAddress = CONFIG.UpCrowdPoolingFactory;
     let CpFactoryAddress = CONFIG.CrowdPoolingFactory;
     let ERC20V2FactoryAddress = CONFIG.ERC20V2Factory;
 
@@ -270,7 +270,7 @@ module.exports = async (deployer, network, accounts) => {
             DODOCpProxy,
             WETHAddress,
             CpFactoryAddress,
-            UpCpFactoryAddress,
+            UpCrowdPoolingFactoryAddress,
             DODOApproveProxyAddress
         );
         logger.log("CpProxy address: ", DODOCpProxy.address);
@@ -292,9 +292,9 @@ module.exports = async (deployer, network, accounts) => {
             DefaultPermissionAddress
         );
         logger.log("UpCrowdPoolingFactory address: ", UpCrowdPoolingFactory.address);
-        const UpCpFactoryInstance = await UpCrowdPoolingFactory.at(UpCrowdPoolingFactory.address);
-        var tx = await UpCpFactoryInstance.initOwner(multiSigAddress);
-        logger.log("Init UpCpFactory Tx:", tx.tx);
+        const UpCrowdPoolingFactoryInstance = await UpCrowdPoolingFactory.at(UpCrowdPoolingFactory.address);
+        var tx = await UpCrowdPoolingFactoryInstance.initOwner(multiSigAddress);
+        logger.log("Init UpCrowdPoolingFactory Tx:", tx.tx);
     }
 
     if (deploySwitch.MultiCall) {

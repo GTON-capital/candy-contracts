@@ -24,14 +24,16 @@
     "node": "ganache-cli --port 8545 -l 0x1fffffffffffff -i 5777 -g 1 --allowUnlimitedContractSize",
     "test:h": "hardhat test ./tests/*",
     "compile:h": "hardhat compile",
-    "test:dodo:ftmtestnet": "hardhat run --network ftmtestnet_2 ./scripts/dpp-deploy.ts",
+    "test:dodo:ftmtestnet": "hardhat run --network ftmTestnet ./scripts/dpp-deploy.ts",
     "test:dodo:goerli": "hardhat run --network goerli ./scripts/dpp-deploy.ts",
-    "testnet:cli": "hardhat run --network ftmtestnet ./scripts/ogs-cli.ts",
-    "testnet:goerli:cli": "hardhat run --network goerli ./scripts/deploy-ogs.ts"
+    "testnet:cli": "hardhat run --network ftmTestnet ./scripts/ogs-cli.ts",
+    "ogs:deploy": "hardhat run --network ftmTestnet ./scripts/deploy-ogs.ts",
+    "ogs:deploy:local": "hardhat run --network localhost ./scripts/deploy-ogs.ts",
+    "ogs:singledeploy": "hardhat run --network ftmTestnet ./scripts/single-contract-deploy.ts",
+    "ogs:interact": "hardhat run --network ftmTestnet ./scripts/ogs-pool-interactions.ts"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
-    "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.5.0",
     "@truffle/hdwallet-provider": "^1.5.1",
@@ -64,6 +66,7 @@
     "web3-eth-contract": "^1.2.8"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@types/big.js": "^6.1.3",
     "@types/inquirer": "^8.2.0",
     "@types/lodash": "^4.14.180",
