@@ -9,6 +9,11 @@ import {
   DPPFactory__factory,
   OGSPPool,
   OGSPPool__factory,
+  AggregatorProxyMock,
+  AggregatorProxyMock__factory,
+  DONPriceProxy__factory,
+  OGSPPAdmin,
+  OGSPPAdmin__factory,
 } from "./../typechain-types";
 
 import { core } from "../tests/migrate";
@@ -45,8 +50,9 @@ async function mn() {
   console.log("Base: " + baseAddress)
   console.log("Quote: " + quoteAddress)
   
-  // Set any desired action here
-  await makeATrade()
+  /* Set any desired action here. This is the sequence to setup pool from scratch:: */
+  // await deployGtonOGSPPool()
+  // await setDonProxy()
 }
 
 // Here we assume all the contracts are set in config & that the deployer got necessary number of each token
@@ -95,19 +101,50 @@ async function deployGtonOGSPPool() {
 }
 
 async function makeATrade() {
-  const ogsPool = await getPoolObject()
+  const pool = await getPoolObject()
 
   // Making approve
   let approveTwo = await quote.approve(
     deploy.dodoApprove.address,
     new Big(1).mul(1e18).toFixed()
   );
-  // Sending it to dppContract
-  await quote.transfer(deploy.dppContract.address, decimalStr("1"));
+  // First sending money to pool contract
+  await quote.transfer(pool.address, decimalStr("1"));
 
   // Selling quote on pool
-  let tx = await ogsPool.sellQuote(deployerAddress);
+  let tx = await pool.sellQuote(deployerAddress);
   console.log("Swap TX hash:" + tx.hash);
+}
+
+async function setDonProxy() {
+  // Can be updated to check for current deployment, but this nees to be moved to migrations.ts
+  const donOracleMockFactory = (await ethers.getContractFactory("AggregatorProxyMock")) as AggregatorProxyMock__factory;
+  const donProxyFactory = (await ethers.getContractFactory("DONPriceProxy")) as DONPriceProxy__factory;
+
+  var donOrcaleAddress: string = "0x639eeD428D4A059FC69Be0Ac5922902A51c1106E" // ftmtest usdc
+  var donProxyAddress: string = "0xa8A2108A051d65CA66E2c9b25475E88B0291d9D5" // ftmtest usdc
+
+  if (donProxyAddress == "") {
+    if (donOrcaleAddress == "") {
+      const orcale = await donOracleMockFactory.deploy(10000, 4)
+      donOrcaleAddress = orcale.address
+      console.log("Don orcale address: " + donOrcaleAddress)
+    }
+
+    const donProxyContractUSDC = await donProxyFactory.deploy(donOrcaleAddress)
+    donProxyAddress = donProxyContractUSDC.address
+    console.log("Don proxy address: " + donProxyAddress)
+  }
+
+  const pool = await getPoolObject()
+  const ownerAddress = await pool._OWNER_()
+  console.log("Pool owner admin proxy: " + ownerAddress)
+
+  let adminFactory = (await ethers.getContractFactory("OGSPPAdmin")) as OGSPPAdmin__factory;
+  let admin = adminFactory.attach(ownerAddress);
+
+  let tx = await admin.updatePriceProxy(donProxyAddress)
+  console.log("Oracle update tx: " + tx.hash)
 }
 
 async function getCurrentPoolAddress() {

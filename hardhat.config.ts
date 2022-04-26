@@ -28,8 +28,8 @@ export default {
     },
     ftmTestnet: {
       // gas: 5000000,
-      // url: "https://rpc.ankr.com/fantom",
-      url: "https://rpc.testnet.fantom.network",
+      url: "https://xapi.testnet.fantom.network/lachesis",
+      // url: "https://rpc.testnet.fantom.network",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : undefined,
       // gasPrice: 35000000000,
     },
