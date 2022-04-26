@@ -33,6 +33,10 @@ export default {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : undefined,
       // gasPrice: 35000000000,
     },
+    ropsten: {
+      url: "", //Add Infura Ropsten endpoint
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : undefined,
+    },
   },
   etherscan: {
     apiKey: {
