@@ -1,10 +1,10 @@
 import BigNumber from "bignumber.js";
-
+import Big from "big.js";
 
 export const MAX_UINT256 = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 
 export function decimalStr(value: string): string {
-  return new BigNumber(value).multipliedBy(10 ** 18).toFixed(0, BigNumber.ROUND_DOWN)
+  return Big(value).mul(1e18).toFixed()
 }
  
 export function gweiStr(gwei: string): string {

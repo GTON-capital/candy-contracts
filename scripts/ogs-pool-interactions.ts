@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import Big from "big.js";
-import { BaseContract } from "ethers";
+import { decimalStr } from "../test/utils/Converter";
 
 // Interacting with tokens
 import { 
@@ -14,34 +14,53 @@ import {
 import { core } from "../tests/migrate";
 
 let txProperties = () => {
-  return { gasLimit: 500_000 };
+  return { gasLimit: 1_000_000 };
 };
+
+var deploy: Record<string, any>
+var quote: SimpleERC20
+var base: SimpleERC20 // can be null
+var deployerAddress: string
+var baseAddress: string
+var quoteAddress: string
 
 async function mn() {
   let [deployer] = await ethers.getSigners();
-  const deploy: Record<string, any> = 
+  deployerAddress = deployer.address;
+  deploy = 
     await core.deployOGS(deployer, deployer.address, deployer.address);
-  let quote = deploy.gtonContract
-  // Base an be null, in such case - pool is ETH-based
-  let base = deploy.usdcContract 
-  await deployGtonOGSPPool(deploy, quote, base)
+
+  // Base an be null, in such case - pool is ETH-based. Just comment out one next line
+  base = deploy.usdcContract
+  quote = deploy.gtonContract
+
+  if (base) {
+    baseAddress = base?.address
+  } else {
+    baseAddress = ethAddress
+  }
+  quoteAddress = quote.address
+
+  console.log("========== Working with ==========")
+  console.log("Base: " + baseAddress)
+  console.log("Quote: " + quoteAddress)
+  
+  // Set any desired action here
+  await makeATrade()
 }
 
 // Here we assume all the contracts are set in config & that the deployer got necessary number of each token
-async function deployGtonOGSPPool(deploy: Record<string, any>, quote: SimpleERC20, base?: SimpleERC20) {
-
-  let [deployer] = await ethers.getSigners();
-
-  let baseAddress = base?.address ?? ethAddress
-  let quoteAddress = quote.address
+async function deployGtonOGSPPool() {
 
   let I = 1;
   let K = 0.5;
   let feeRate = 0.0;
 
-  let needsDeploy = true
+  var needsDeploy = true
 
-  if (needsDeploy) {
+  let poolAddress = await getCurrentPoolAddress()
+
+  if (poolAddress == undefined) {
     // Token spend should be approved to DODOApprove
     let initialTokens = 100
     if (base) {
@@ -56,7 +75,7 @@ async function deployGtonOGSPPool(deploy: Record<string, any>, quote: SimpleERC2
       new Big(initialTokens).mul(1e18).toFixed()
     );
     await approveTwo.wait()
-    console.log("Trying pool deploy")
+    console.log("Trying pool deploy, transaction also initializes it")
     let poolDeployTx = await deploy.dppProxy.createDODOPrivatePool(
       baseAddress, // Base token address
       quoteAddress, // Quote token address
@@ -72,33 +91,42 @@ async function deployGtonOGSPPool(deploy: Record<string, any>, quote: SimpleERC2
     const receipt = await poolDeployTx.wait()
     console.log("Pool deploy tx: " + poolDeployTx.hash)
     console.log("TX logs: " + receipt.logs)
-  }
+  }  
+}
 
+async function makeATrade() {
+  const ogsPool = await getPoolObject()
+
+  // Making approve
+  let approveTwo = await quote.approve(
+    deploy.dodoApprove.address,
+    new Big(1).mul(1e18).toFixed()
+  );
+  // Sending it to dppContract
+  await quote.transfer(deploy.dppContract.address, decimalStr("1"));
+
+  // Selling quote on pool
+  let tx = await ogsPool.sellQuote(deployerAddress);
+  console.log("Swap TX hash:" + tx.hash);
+}
+
+async function getCurrentPoolAddress() {
   let poolAddrList = await deploy.dppFactory.getDODOPool(
     baseAddress, // Base
     quoteAddress // Quote
   );
 
   const poolAddr = poolAddrList[0];
-  console.log("Pool addresses: " + poolAddr)
+  console.log("\nPool addresses: " + poolAddr)
+  return poolAddr
+}
 
+async function getPoolObject() {
+  let address = await getCurrentPoolAddress()
   let ogsPoolFactory = (await ethers.getContractFactory("OGSPPool")) as OGSPPool__factory;
-  let ogsPool: OGSPPool = ogsPoolFactory.attach(poolAddr);
-  console.log("Connected to new OGSPPool: " + ogsPool.address)
-
-  let initTransaction = await ogsPool.init(
-    deployer.address,
-    deployer.address,
-    baseAddress, // Base token address
-    quoteAddress, // Quote token address
-    new Big(0.002).mul(1e18).toFixed(), // default
-    deploy.feeRateModel.address,
-    new Big(0.1).mul(1e18).toFixed(), // default (K)
-    new Big(100).mul(1e18).toFixed(), // default (I)
-    true,
-    // txProperties()
-  );
-  console.log("Init TX hash:" + initTransaction.hash);
+  let ogsPool: OGSPPool = ogsPoolFactory.attach(address);
+  console.log("\nConnected to new OGSPPool: " + ogsPool.address)
+  return ogsPool
 }
 
 async function deployOGSPPoolTemplate() {
