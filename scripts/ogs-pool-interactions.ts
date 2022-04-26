@@ -53,6 +53,7 @@ async function mn() {
   /* Set any desired action here. This is the sequence to setup pool from scratch:: */
   // await deployGtonOGSPPool()
   // await setDonProxy()
+  // await makeATrade()
 }
 
 // Here we assume all the contracts are set in config & that the deployer got necessary number of each token
@@ -121,8 +122,8 @@ async function setDonProxy() {
   const donOracleMockFactory = (await ethers.getContractFactory("AggregatorProxyMock")) as AggregatorProxyMock__factory;
   const donProxyFactory = (await ethers.getContractFactory("DONPriceProxy")) as DONPriceProxy__factory;
 
-  var donOrcaleAddress: string = "0x639eeD428D4A059FC69Be0Ac5922902A51c1106E" // ftmtest usdc
-  var donProxyAddress: string = "0xa8A2108A051d65CA66E2c9b25475E88B0291d9D5" // ftmtest usdc
+  var donOrcaleAddress: string = ""
+  var donProxyAddress: string = ""
 
   if (donProxyAddress == "") {
     if (donOrcaleAddress == "") {
@@ -136,15 +137,35 @@ async function setDonProxy() {
     console.log("Don proxy address: " + donProxyAddress)
   }
 
+  let admin = await getPoolAdminContract()
+
+  let tx = await admin.updatePriceProxy(donProxyAddress)
+  console.log("Oracle update tx: " + tx.hash)
+}
+
+async function getPoolAdminContract() {
   const pool = await getPoolObject()
   const ownerAddress = await pool._OWNER_()
   console.log("Pool owner admin proxy: " + ownerAddress)
 
   let adminFactory = (await ethers.getContractFactory("OGSPPAdmin")) as OGSPPAdmin__factory;
-  let admin = adminFactory.attach(ownerAddress);
+  return adminFactory.attach(ownerAddress);
+}
 
-  let tx = await admin.updatePriceProxy(donProxyAddress)
-  console.log("Oracle update tx: " + tx.hash)
+async function updatePoolAdmin() {
+  let admin = await getPoolAdminContract()
+
+  let newAdminAddress = "0xeE3e30819830Cf6207563554738210B0b232d28A"
+  let tx = await admin.transferOwnership(newAdminAddress)
+  console.log("Admin update tx: " + tx.hash)
+}
+
+async function acceptOwnershipTransfer() {
+  // Needs to be called from the new admin, so update your .env prior to calling
+  let admin = await getPoolAdminContract()
+
+  let tx = await admin.claimOwnership()
+  console.log("Ownership claim tx: " + tx.hash)
 }
 
 async function getCurrentPoolAddress() {
