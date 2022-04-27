@@ -54,6 +54,7 @@ async function mn() {
   // await deployGtonOGSPPool()
   // await setDonProxy()
   // await makeATrade()
+  await addLiquidity()
 }
 
 // Here we assume all the contracts are set in config & that the deployer got necessary number of each token
@@ -101,22 +102,6 @@ async function deployGtonOGSPPool() {
   }  
 }
 
-async function makeATrade() {
-  const pool = await getPoolObject()
-
-  // Making approve
-  let approveTwo = await quote.approve(
-    deploy.dodoApprove.address,
-    new Big(1).mul(1e18).toFixed()
-  );
-  // First sending money to pool contract
-  await quote.transfer(pool.address, decimalStr("1"));
-
-  // Selling quote on pool
-  let tx = await pool.sellQuote(deployerAddress);
-  console.log("Swap TX hash:" + tx.hash);
-}
-
 async function setDonProxy() {
   // Can be updated to check for current deployment, but this nees to be moved to migrations.ts
   const donOracleMockFactory = (await ethers.getContractFactory("AggregatorProxyMock")) as AggregatorProxyMock__factory;
@@ -141,6 +126,63 @@ async function setDonProxy() {
 
   let tx = await admin.updatePriceProxy(donProxyAddress)
   console.log("Oracle update tx: " + tx.hash)
+}
+
+async function makeATrade() {
+  const pool = await getPoolObject()
+
+  // Making approve
+  let approveTwo = await quote.approve(
+    deploy.dodoApprove.address,
+    new Big(1).mul(1e18).toFixed()
+  );
+
+  // First sending money to pool contract
+  await quote.transfer(pool.address, decimalStr("1"),txProperties());
+  console.log("Here");
+
+  // Selling quote on pool
+  let tx = await pool.sellQuote(deployerAddress);
+  console.log("Swap TX hash:" + tx.hash);
+}
+
+async function addLiquidity() {
+    let liquidityAmount = 10
+
+    if (base) {
+      let approveOne = await base.approve(
+        deploy.dodoApprove.address,
+        new Big(liquidityAmount).mul(1e18).toFixed()
+      );
+      await approveOne.wait()
+    }
+
+    let approveTwo = await quote.approve(
+      deploy.dodoApprove.address,
+      new Big(liquidityAmount).mul(1e18).toFixed()
+    );
+
+    await approveTwo.wait()
+
+    let dppAddress = await getCurrentPoolAddress()
+    let I = 1;
+    let K = 0.5;
+    let feeRate = 0.0;
+    console.log("Trying to reset the pool")
+    let poolResetTx = await deploy.dppProxy.resetDODOPrivatePool(
+        dppAddress, //dppAddress
+        [new Big(feeRate).mul(1e18).toFixed(), new Big(I).mul(1e18).toFixed(), new Big(K).mul(1e18).toFixed()], //paramList
+        [new Big(10).mul(1e18).toFixed(), new Big(10).mul(1e18).toFixed(), 0, 0],
+        0,
+        new Big(8).mul(1e18).toFixed(),
+        new Big(8).mul(1e18).toFixed(),
+        Math.floor(new Date().getTime() / 1000 + 60 * 10),
+        txProperties()
+    );
+    
+    const receipt = await poolResetTx.wait()
+    console.log("Pool reset tx: " + poolResetTx.hash)
+    console.log("TX logs: " + receipt.logs)
 }
 
 async function getPoolAdminContract() {
