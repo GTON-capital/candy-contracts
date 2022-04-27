@@ -1,3 +1,4 @@
+const hre = require("hardhat");
 import { ethers } from "hardhat";
 import Big from "big.js";
 import { decimalStr } from "../test/utils/Converter";
@@ -32,6 +33,7 @@ var quoteAddress: string
 async function mn() {
   let [deployer] = await ethers.getSigners();
   deployerAddress = deployer.address;
+
   deploy = 
     await core.deployOGS(deployer, deployer.address, deployer.address);
 
@@ -47,6 +49,7 @@ async function mn() {
   quoteAddress = quote.address
 
   console.log("========== Working with ==========")
+  console.log("Running scripts with address: " + deployerAddress)
   console.log("Base: " + baseAddress)
   console.log("Quote: " + quoteAddress)
   
@@ -147,22 +150,24 @@ async function makeATrade() {
 }
 
 async function addLiquidity() {
-    let liquidityAmount = 10
+    let liquidityBase = 10
+    let liquidityQuote = 10
 
     if (base) {
       let approveOne = await base.approve(
         deploy.dodoApprove.address,
-        new Big(liquidityAmount).mul(1e18).toFixed()
+        new Big(liquidityBase).mul(1e18).toFixed()
       );
       await approveOne.wait()
+      console.log("approveOne: " + approveOne.hash)
     }
 
     let approveTwo = await quote.approve(
       deploy.dodoApprove.address,
-      new Big(liquidityAmount).mul(1e18).toFixed()
+      new Big(liquidityQuote).mul(1e18).toFixed()
     );
-
     await approveTwo.wait()
+    console.log("approveTwo: " + approveTwo.hash)
 
     let dppAddress = await getCurrentPoolAddress()
     let I = 1;
@@ -171,12 +176,23 @@ async function addLiquidity() {
     console.log("Trying to reset the pool")
     let poolResetTx = await deploy.dppProxy.resetDODOPrivatePool(
         dppAddress, //dppAddress
-        [new Big(feeRate).mul(1e18).toFixed(), new Big(I).mul(1e18).toFixed(), new Big(K).mul(1e18).toFixed()], //paramList
-        [new Big(10).mul(1e18).toFixed(), new Big(10).mul(1e18).toFixed(), 0, 0],
-        0,
-        new Big(8).mul(1e18).toFixed(),
-        new Big(8).mul(1e18).toFixed(),
-        Math.floor(new Date().getTime() / 1000 + 60 * 10),
+        // paramList
+        [
+          new Big(feeRate).mul(1e18).toFixed(), // newLpFeeRate
+          new Big(I).mul(1e18).toFixed(), // newI
+          new Big(K).mul(1e18).toFixed() // newK
+        ],
+        // amountList
+        [
+          new Big(liquidityBase).mul(1e18).toFixed(), // baseInAmount
+          new Big(liquidityQuote).mul(1e18).toFixed(), // quoteInAmount
+          0, // baseOutAmount -- if you want to withdraw
+          0 // quoteOutAmount -- if you want to withdraw
+        ],
+        0, // flag 0 - ERC20, 1 - baseInETH, 2 - quoteInETH, 3 - baseOutETH, 4 - quoteOutETH
+        new Big(2).mul(1e18).toFixed(), // minBaseReserve
+        new Big(2).mul(1e18).toFixed(), // minQuoteReserve
+        "9999999999", // Math.floor(new Date().getTime() / 1000 + 60 * 10), // deadLine
         txProperties()
     );
     
@@ -243,6 +259,13 @@ async function updateFactoryTemplate(deploy: Record<string, any>) {
   console.log("Factory address:" + contract.address);
   let tx = await contract.updateDppTemplate(template.address);
   console.log("Factory template update tx:" + tx.hash)
+}
+
+async function checkPoolOwner() {
+  let admin = await getPoolAdminContract()
+  let adminsadmin = await admin._OWNER_()
+  console.log("Admin contract: " + admin.address)
+  console.log("Its owner: " + adminsadmin)
 }
 
 let ethAddress = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
