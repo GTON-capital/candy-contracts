@@ -29,6 +29,7 @@ var base: SimpleERC20 // can be null
 var deployerAddress: string
 var baseAddress: string
 var quoteAddress: string
+let adminAddress = "0xeE3e30819830Cf6207563554738210B0b232d28A"
 
 async function mn() {
   let [deployer] = await ethers.getSigners();
@@ -150,7 +151,7 @@ async function makeATrade() {
 }
 
 async function addLiquidity() {
-    let liquidityBase = 10
+    let liquidityBase = 20
     let liquidityQuote = 10
 
     if (base) {
@@ -170,7 +171,7 @@ async function addLiquidity() {
     console.log("approveTwo: " + approveTwo.hash)
 
     let dppAddress = await getCurrentPoolAddress()
-    let I = 1;
+    let I = 2;
     let K = 0.5;
     let feeRate = 0.0;
     console.log("Trying to reset the pool")
@@ -210,12 +211,14 @@ async function getPoolAdminContract() {
   return adminFactory.attach(ownerAddress);
 }
 
-async function updatePoolAdmin() {
+async function updatePoolAdminAndOperator() {
   let admin = await getPoolAdminContract()
 
-  let newAdminAddress = "0xeE3e30819830Cf6207563554738210B0b232d28A"
-  let tx = await admin.transferOwnership(newAdminAddress)
-  console.log("Admin update tx: " + tx.hash)
+  let setAdminTx = await admin.transferOwnership(adminAddress)
+  console.log("Admin update tx: " + setAdminTx.hash)
+
+  let setOperatorTx = await admin.setOperator(adminAddress)
+  console.log("Operator update tx: " + setOperatorTx.hash)
 }
 
 async function acceptOwnershipTransfer() {
