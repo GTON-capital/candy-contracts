@@ -58,7 +58,8 @@ async function mn() {
   // await deployGtonOGSPPool()
   // await setDonProxy()
   // await makeATrade()
-  await addLiquidity()
+  // await addLiquidity()
+  await swapBaseThroughProxy()
 }
 
 // Here we assume all the contracts are set in config & that the deployer got necessary number of each token
@@ -148,6 +149,32 @@ async function makeATrade() {
   // Selling quote on pool
   let tx = await pool.sellQuote(deployerAddress);
   console.log("Swap TX hash:" + tx.hash);
+}
+
+async function swapBaseThroughProxy() {
+  // Non-eth
+  let swapAmount = 1
+  let pool = await getPoolObject()
+  let swapperContract = deploy.swapper
+  if (base) {
+    await base.approve(
+      swapperContract.address,
+      new Big(swapAmount).mul(1e18).toFixed()
+    );
+  }
+
+  console.log(
+    `swap via ogs executed successfully. check tx: ${(
+      await swapperContract.swapPrivatePool(
+        pool.address,
+        base,
+        quote,
+        new Big(swapAmount).mul(1e18).toFixed(),
+        deployerAddress,
+        true
+      )
+    ).hash.toString()}`
+  );
 }
 
 async function addLiquidity() {

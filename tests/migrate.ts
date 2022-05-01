@@ -48,6 +48,7 @@ import {
   Multicall__factory,
   OGSPPool__factory,
   SimpleERC20__factory,
+  OGSPPSwapper__factory,
 } from "~/typechain-types";
 
 function getLogFile() {
@@ -614,6 +615,13 @@ export namespace core {
 
     deploy.gtonContract = factory.attach(CONFIG.GTONAddress);
     deploy.usdcContract = factory.attach(CONFIG.USDCAddress);
+
+    const ogsPPSwapperFactory = (await ethers.getContractFactory(
+      "OGSPPSwapper"
+    )) as OGSPPSwapper__factory;
+    const swapper = 
+      await attachOrDeploy("OGSPPSwapper", ogsPPSwapperFactory);
+    deploy.swapper = swapper
 
     return deploy;
   }

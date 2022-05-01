@@ -4,6 +4,7 @@ module.exports = {
         WETH: "0xd0011de099e514c2094a510dd0109f91bf8791fa",
         GTONAddress: "0xc4d0a76ba5909c8e764b67acf7360f843fbacb2d",
         USDCAddress: "0xA2DCeFfc29003101b4bca24134dd1437106A7f81",
+        OGSPPSwapper: "0x4dCa0553736e2f77047A3768Cf8d1ac144318A6E",
         AggregatorProxyMock: "",
         DONPriceProxy: "", 
 
